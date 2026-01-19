@@ -1,0 +1,14 @@
+b000f9b53e4d0bf74cc858bc6d1d24b1 *DESCRIPTION
+9477fa48b033f1b53e02d8f40abd38df *NAMESPACE
+c0074b12c68ca43589b08d3b6913b08b *R/cf_lm.R
+95e606d2ea96ef477b3e76c5b07f67f1 *R/cf_lm_hv.R
+7f8a4511ac2b8acb818e4a6e090c8e88 *R/internal_utils.R
+144a40967b45045ac1a11233a46c3460 *R/sp_scalewise.R
+53741689f786bcf7859caad71ac03509 *build/vignette.rds
+8f305b20239220778017e3ff47654775 *inst/doc/spCF_intro.R
+cb40d954da185bb489999dba31047752 *inst/doc/spCF_intro.Rmd
+bad1b69dfa2087c7e9b744a64ff98305 *inst/doc/spCF_intro.html
+b5a1cf7e8523d424f5f7b67e65598a51 *man/cf_lm.Rd
+a35d1e1bb669a8161dc36ae1aa4f03a7 *man/cf_lm_hv.Rd
+8074c65157c67851d45d70dee360d2bf *man/sp_scalewise.Rd
+cb40d954da185bb489999dba31047752 *vignettes/spCF_intro.Rmd
