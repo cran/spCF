@@ -30,9 +30,7 @@ obs_s    <- st_as_sf( data.frame(coords, zinc=y), coords= c("x","y"), crs=28992)
 plot(obs_s[,"zinc"], cex=0.6,pch = 20, nbreaks = 20, key.pos=4, axes=TRUE)
 
 ## -----------------------------------------------------------------------------
-set.seed(123) # For this vignette, training samples are fixed
 mod_hv   <- cf_lm_hv(y = y, x = x, coords = coords)
-
 
 ## -----------------------------------------------------------------------------
 mod      <- cf_lm(y = y, x = x, x0 = x0, coords = coords, coords0 = coords0, mod_hv = mod_hv)
@@ -52,24 +50,25 @@ st_crs(meuse.grid_sf)     <- 28992
 meuse.grid_sf$pred        <- mod$pred0$pred   # Predictive mean
 meuse.grid_sf$pred_sd     <- mod$pred0$pred_sd# Predictive standard deviations
 plot(meuse.grid_sf[,"pred"], border = NA, nbreaks = 20, key.pos=4,axes=TRUE)
-plot(meuse.grid_sf[,"pred_sd"], border = NA, nbreaks = 20, key.pos=4,axes=TRUE)
+plot(meuse.grid_sf[,"pred_sd"], pal = hcl.colors(9, "Viridis"), border = NA, 
+     nbreaks = 9, key.pos = 4,axes = TRUE)
 
 ## -----------------------------------------------------------------------------
-mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwdith)
-mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Moderate scale (500 <= bandwdith < 1000)
-mod_s3<- sp_scalewise(mod,bw_range=c(0,500))    # Small scale (bandwdith < 500)
+mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwidth)
+mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Moderate scale (500 <= bandwidth < 1000)
+mod_s3<- sp_scalewise(mod,bw_range=c(0,500))    # Small scale (bandwidth < 500)
 
 ## ----fig.height=3.5, fig.width=7.5--------------------------------------------
-z1    <- mod_s1$pred0$pred   # Large-scale process
-z2    <- mod_s2$pred0$pred   # Moderate-scale process
-z3    <- mod_s3$pred0$pred   # Small-scale process
-meuse.grid_sf3  <- cbind(meuse.grid_sf, z1, z2, z3)
-plot(meuse.grid_sf3[,c("z1","z2","z3")], border = NA, nbreaks = 20,key.pos=4,axes=TRUE)
+meuse.grid_sf$z1    <- mod_s1$pred0$pred   # Large-scale process
+meuse.grid_sf$z2    <- mod_s2$pred0$pred   # Moderate-scale process
+meuse.grid_sf$z3    <- mod_s3$pred0$pred   # Small-scale process
+plot(meuse.grid_sf[,c("z1","z2","z3")],border = NA,key.pos=4,nbreaks=40,axes=TRUE)
 
 ## ----fig.height=3.5, fig.width=7.5--------------------------------------------
-z1_sd <- mod_s1$pred0$pred_sd   # Large-scale process
-z2_sd <- mod_s2$pred0$pred_sd   # Moderate-scale process
-z3_sd <- mod_s3$pred0$pred_sd   # Small-scale process
-meuse.grid_sf3  <- cbind(meuse.grid_sf, z1_sd, z2_sd, z3_sd)
-plot(meuse.grid_sf3[,c("z1_sd","z2_sd","z3_sd")],border = NA,nbreaks = 20,key.pos=4,axes=TRUE)
+meuse.grid_sf$z1_sd <- mod_s1$pred0$pred_sd   # Large-scale process
+meuse.grid_sf$z2_sd <- mod_s2$pred0$pred_sd   # Moderate-scale process
+meuse.grid_sf$z3_sd <- mod_s3$pred0$pred_sd   # Small-scale process
+plot(meuse.grid_sf[,c("z1_sd","z2_sd","z3_sd")],
+     pal = function(n) hcl.colors(n, "Viridis"),
+     border = NA,key.pos=4,axes=TRUE)
 

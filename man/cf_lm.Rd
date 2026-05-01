@@ -2,9 +2,9 @@
 % Please edit documentation in R/cf_lm.R
 \name{cf_lm}
 \alias{cf_lm}
-\title{Coarse-to-fine spatial linear modeling}
+\title{Coarse-to-fine spatial modeling (CFSM) for Gaussian response}
 \usage{
-cf_lm(y, x, coords, x0 = NULL, coords0 = NULL, mod_hv)
+cf_lm(y, x = NULL, coords, x0 = NULL, coords0 = NULL, mod_hv)
 }
 \arguments{
 \item{y}{Vector of response variables (N x 1).}
@@ -27,27 +27,28 @@ A list with the following elements:
   and upper limits of the 95 percent confidence intervals.}
   \item{sd_summary}{Standard deviation of the regression term (xb), spatial
   process (spatial_scale1, spatial_scale2,...),
-  additional learning, and residuals.}
-  \item{e_summary}{R-squared and RMSE for validation samples, and
-  residual standard deviation (residual_SD),
-  and root mean squared error for the validation samples (validation_RMSE)}
+  additionally learned components (effective if `cf_lm_hv/add_learn` is not
+  `none`), and residuals.}
+  \item{e_summary}{R-squared for the validation samples (validation_R2),
+  root mean squared error for the validation samples (validation_RMSE),
+  and the residual standard deviation (residual_SD).}
   \item{pred}{Predictive means and standard deviations (sample sites).}
   \item{pred0}{Predictive means and standard deviations (prediction sites).}
   \item{bands}{Bandwidth values for each scale. The i-th bandwidth is used
-  for the spatial process corresponding to the i-th column of the Z matrix).}
-  \item{Z}{Predictive mean of the spatial process in each scale
-  (sample sites; list).}
-  \item{Z_sd}{Predictive standard deviation of the spatial process in each
-  scale (sample sites; list).}
-  \item{Z0}{Predictive mean of the spatial process in each scale
-  (prediction sites; list).}
-  \item{Z0_sd}{Predictive standard deviation of the spatial process in each
-  scale (prediction sites; list).}
+  to describe the spatial process corresponding to the i-th column of the Z matrix.}
+  \item{Z}{Predictive means of the single-scale processes at each scale,
+  corresponding to each bandwidth value (sample sites; list).}
+  \item{Z_sd}{Predictive standard deviation of the spatial processes
+  corresponding to in each bandwidth (sample sites; list).}
+  \item{Z0}{Predictive mean of the spatial process corresponding to
+  each bandwidth (prediction sites; list).}
+  \item{Z0_sd}{Predictive standard deviation of the spatial process
+  corresponding to in each bandwidth (prediction sites; list).}
   \item{Other}{Other internal output objects.}
 }
 }
 \description{
-Prediction and regression via coarse-to-fine spatial linear modeling.
+Prediction and regression via coarse-to-fine spatial modeling.
 }
 \examples{
 set.seed(123)
@@ -84,9 +85,9 @@ plot(meuse.grid_sf[,"pred"], pch = 15, cex = 0.5, nbreaks = 20)   # Predictive m
 plot(meuse.grid_sf[,"pred_sd"], pch = 15, cex = 0.5, nbreaks = 20)# Predictive SD
 
 ### Multiscale spatial pattern/feature extraction
-mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwdith)
-mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Middle scale (500 <= bandwdith <= 1000)
-mod_s3<- sp_scalewise(mod,bw_range=c(0,500))    # Small scale (bandwdith <= 500)
+mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwidth)
+mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Middle scale (500 <= bandwidth <= 1000)
+mod_s3<- sp_scalewise(mod,bw_range=c(0,500))    # Small scale (bandwidth <= 500)
 z1    <- mod_s1$pred0$pred                      # Predictive mean
 z2    <- mod_s2$pred0$pred
 z3    <- mod_s3$pred0$pred
@@ -102,13 +103,14 @@ plot(meuse.grid_sf3[,c("z1_sd","z2_sd","z3_sd")], pch = 15,
 }
 \references{
 Murakami, D., Comber, A., Yoshida, T., Tsutsumida, N., Brunsdon, C.,
-& Nakaya, T. (2025).
+& Nakaya, T. (2026).
 Coarse-to-fine spatial modeling: A scalable, machine-learning-compatible
-spatial model.
-*arXiv:2510.00968*.
+framework.
+*Geographical Analysis*, 58(2), e70034.
+https://onlinelibrary.wiley.com/doi/10.1111/gean.70034
 }
 \seealso{
-\code{\link{cf_lm_hv}}, \code{\link{sp_scalewise}}
+\code{\link{cf_glm}}, \code{\link{cf_lm_hv}}, \code{\link{sp_scalewise}}
 }
 \author{
 Daisuke Murakami

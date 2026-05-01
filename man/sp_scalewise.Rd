@@ -7,7 +7,8 @@
 sp_scalewise(mod, bw_range = c(0, Inf))
 }
 \arguments{
-\item{mod}{Output object from the \code{cf_lm} function.}
+\item{mod}{Output object from the \code{\link{cf_lm}} or
+\code{\link{cf_glm}} function.}
 
 \item{bw_range}{Range of bandwidth values of the simulated spatial processes.
 For example, if bw_range = c(10, 20), spatial processes with bandwidths
@@ -17,8 +18,11 @@ which synthesizes all scales.}
 \value{
 A list with the following elements:
 \describe{
-  \item{pred}{Means and standard deviations of the spatial process (sample sites).}
-  \item{pred0}{Means and standard deviations of the spatial process (prediction sites).}
+  \item{pred}{Means and standard deviations of the spatial process
+  (sample sites).}
+  \item{pred0}{Means and standard deviations of the spatial process
+  (prediction sites). \code{NULL} when \code{mod} was fitted without
+  prediction sites.}
 }
 }
 \description{
@@ -26,7 +30,7 @@ Evaluate mean and variance of the spatial process with bandwidth values
 within a pre-specified range
 }
 \seealso{
-\code{\link{cf_lm}}
+\code{\link{cf_lm}}, \code{\link{cf_glm}}
 }
 \author{
 Daisuke Murakami

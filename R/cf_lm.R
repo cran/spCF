@@ -1,6 +1,6 @@
-#' Coarse-to-fine spatial linear modeling
+#' Coarse-to-fine spatial modeling (CFSM) for Gaussian response
 #'
-#' Prediction and regression via coarse-to-fine spatial linear modeling.
+#' Prediction and regression via coarse-to-fine spatial modeling.
 #'
 #' @param y Vector of response variables (N x 1).
 #' @param x Matrix of covariates (N x K).
@@ -16,33 +16,35 @@
 #'   and upper limits of the 95 percent confidence intervals.}
 #'   \item{sd_summary}{Standard deviation of the regression term (xb), spatial
 #'   process (spatial_scale1, spatial_scale2,...),
-#'   additional learning, and residuals.}
-#'   \item{e_summary}{R-squared and RMSE for validation samples, and
-#'   residual standard deviation (residual_SD),
-#'   and root mean squared error for the validation samples (validation_RMSE)}
+#'   additionally learned components (effective if `cf_lm_hv/add_learn` is not
+#'   `none`), and residuals.}
+#'   \item{e_summary}{R-squared for the validation samples (validation_R2),
+#'   root mean squared error for the validation samples (validation_RMSE),
+#'   and the residual standard deviation (residual_SD).}
 #'   \item{pred}{Predictive means and standard deviations (sample sites).}
 #'   \item{pred0}{Predictive means and standard deviations (prediction sites).}
 #'   \item{bands}{Bandwidth values for each scale. The i-th bandwidth is used
-#'   for the spatial process corresponding to the i-th column of the Z matrix).}
-#'   \item{Z}{Predictive mean of the spatial process in each scale
-#'   (sample sites; list).}
-#'   \item{Z_sd}{Predictive standard deviation of the spatial process in each
-#'   scale (sample sites; list).}
-#'   \item{Z0}{Predictive mean of the spatial process in each scale
-#'   (prediction sites; list).}
-#'   \item{Z0_sd}{Predictive standard deviation of the spatial process in each
-#'   scale (prediction sites; list).}
+#'   to describe the spatial process corresponding to the i-th column of the Z matrix.}
+#'   \item{Z}{Predictive means of the single-scale processes at each scale,
+#'   corresponding to each bandwidth value (sample sites; list).}
+#'   \item{Z_sd}{Predictive standard deviation of the spatial processes
+#'   corresponding to in each bandwidth (sample sites; list).}
+#'   \item{Z0}{Predictive mean of the spatial process corresponding to
+#'   each bandwidth (prediction sites; list).}
+#'   \item{Z0_sd}{Predictive standard deviation of the spatial process
+#'   corresponding to in each bandwidth (prediction sites; list).}
 #'   \item{Other}{Other internal output objects.}
 #' }
 #'
 #' @references
 #' Murakami, D., Comber, A., Yoshida, T., Tsutsumida, N., Brunsdon, C.,
-#' & Nakaya, T. (2025).
+#' & Nakaya, T. (2026).
 #' Coarse-to-fine spatial modeling: A scalable, machine-learning-compatible
-#' spatial model.
-#' *arXiv:2510.00968*.
+#' framework.
+#' *Geographical Analysis*, 58(2), e70034.
+#' https://onlinelibrary.wiley.com/doi/10.1111/gean.70034
 #'
-#' @seealso \code{\link{cf_lm_hv}}, \code{\link{sp_scalewise}}
+#' @seealso \code{\link{cf_glm}}, \code{\link{cf_lm_hv}}, \code{\link{sp_scalewise}}
 #'
 #' @examples
 #' set.seed(123)
@@ -79,9 +81,9 @@
 #' plot(meuse.grid_sf[,"pred_sd"], pch = 15, cex = 0.5, nbreaks = 20)# Predictive SD
 #'
 #' ### Multiscale spatial pattern/feature extraction
-#' mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwdith)
-#' mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Middle scale (500 <= bandwdith <= 1000)
-#' mod_s3<- sp_scalewise(mod,bw_range=c(0,500))    # Small scale (bandwdith <= 500)
+#' mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwidth)
+#' mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Middle scale (500 <= bandwidth <= 1000)
+#' mod_s3<- sp_scalewise(mod,bw_range=c(0,500))    # Small scale (bandwidth <= 500)
 #' z1    <- mod_s1$pred0$pred                      # Predictive mean
 #' z2    <- mod_s2$pred0$pred
 #' z3    <- mod_s3$pred0$pred
@@ -103,9 +105,14 @@
 #' @importFrom ranger ranger
 #' @importFrom utils capture.output
 #' @importFrom stats approx kmeans predict quantile rnorm runif sd var cor
+#' glm as.formula vcov qnorm residuals coefficients gaussian
 #'
 #' @export
-cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
+cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv){
+
+  if(!is.null(coords0) && !is.null(x) && is.null(x0)){
+    stop("Error: x0 must be provided when x is specified")
+  }
 
   bands          <- mod_hv$other$bands
   bands_all      <- mod_hv$other$bands_all
@@ -122,7 +129,7 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
   a_run          <- mod_hv$other$a_mod0$a_run
   add_learn      <- mod_hv$other$a_mod0$add_learn
 
-  init           <- initial_fun(x=x,y=y,coords=coords,x_sel=x_sel,func="cf_lm",train_rat=1)
+  init           <- initial_fun(x=x,y=y,coords=coords,x_sel=x_sel,train_rat=1)
   xx_inv         <- init$xx_inv
   beta_int       <- init$beta_int
   beta           <- init$beta
@@ -139,7 +146,11 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
   if(!is.null(coords0)){
     n0           <- nrow(coords0)
     one0         <- matrix(1,nrow=n0,ncol=1)
-    x0           <- as.matrix(cbind(one0,x0[,x_sel]))
+    if(is.null(x_sel) || sum(x_sel)==0){
+      x0         <- one0
+    } else {
+      x0         <- cbind(one0, as.matrix(x0)[,x_sel])
+    }
     pred0        <- x0 %*% beta_int
     Z0 <- Z0_sd  <- matrix(0,nrow=n0,ncol=length(bands))
 
@@ -149,7 +160,7 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
   }
 
   ##################### main loop for feature extraction
-  print("--- Learning multi-scale spatial processes ---")
+  print("--- Learning multi-scale spatial process ---", quote=FALSE)
 
   bands_scale    <- which(mod_hv$other$VCmat[,1]==1)
 
@@ -192,11 +203,15 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
           Z0[,ii]       <- beta0_add[,1]-beta_add_m[1]#sweep(beta0_add, 2, beta_add_m, "-")
           Z0_sd[,ii]    <- sqrt(beta0_v_add[,1])
         }
+        comment         <- ""
+      } else {
+        comment         <- " no improvement (skipped)"
       }
 
       print_add   <- ifelse(i<10,"  "," ")
       print( paste0( " Scale",print_add,i,
-                     " (bandwidth:",format(bands_all[i],digits=7),")"), quote = FALSE )
+                     " (bandwidth:",format(bands_all[i],digits=7),")", comment),
+             quote = FALSE )
     }
   } else {
     message("Warning: No residual spatial process was modeled")
@@ -218,19 +233,20 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
     beta0        <- matrix(beta_int[,1], nrow=n0,ncol=nx, byrow=TRUE)
   }
 
-  n_band_x       <- sum(VCmat[,1]==1)#apply(VCmat,2,function(x) sum(x==1))
   n_bid          <- length(bands)
-  vpar_coef      <- bopt_core(vpar[2], bands=bands, Z=Z,
-                              beta_int=beta_int, nx=nx,#, is_vc=ifelse(n_band_x>0,1,0)
-                              x=x, y=y, n_bid=n_bid,id_train=NULL)$vpar[1]
-  w_0        <- exp(-vpar[2]/bands)
-  w          <- vpar_coef*w_0/w_0[1]#vpar[j]
-  w[w<0]     <-0
-  b          <- Z %*% w#Reduce("+", lapply(1:n_band_x, function(i) w[i]*BBB[,i]))
-  beta[,1]   <- beta[,1] + b
-  if(!is.null(coords0)){
-    b0       <- Z0 %*% w#Reduce("+", lapply(1:n_band_x, function(i) w[i]*BBB0[,i]))
-    beta0[,1]<- beta0[,1] + b0
+  if(n_bid>0){
+    n_band_x       <- sum(VCmat[,1]==1)#apply(VCmat,2,function(x) sum(x==1))
+    vpar_coef      <- bopt_core(vpar[2], bands=bands, Z=Z,
+                                beta_int=beta_int, nx=nx,#, is_vc=ifelse(n_band_x>0,1,0)
+                                x=x, y=y, n_bid=n_bid,id_train=NULL)$vpar[1]
+    w_0        <- exp(-vpar[2]/bands)
+    w          <- vpar_coef*w_0/w_0[1]#vpar[j]
+    b          <- Z %*% w#Reduce("+", lapply(1:n_band_x, function(i) w[i]*BBB[,i]))
+    beta[,1]   <- beta[,1] + b
+    if(!is.null(coords0)){
+      b0       <- Z0 %*% w#Reduce("+", lapply(1:n_band_x, function(i) w[i]*BBB0[,i]))
+      beta0[,1]<- beta0[,1] + b0
+    }
   }
 
   ######### additional learning
@@ -272,6 +288,18 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
     pred0_ms     <- data.frame( pred=pred0, pred_sd=pred0_sd )
   }
 
+  ######### spatial process
+  if(!is.null(bands)){
+    Z            <- as.data.frame(Z)
+    Z_sd         <- as.data.frame(Z_sd)
+    names(Z)     <- names(Z_sd) <- paste0("scale",bands_scale)
+    if(!is.null(coords0)){
+      Z0         <- as.data.frame(Z0)
+      Z0_sd      <- as.data.frame(Z0_sd)
+      names(Z0) <-names(Z0_sd) <- paste0("scale",bands_scale)
+    }
+  }
+
   ######### standard deviations of model elements
   resid_sd       <- sd(y - pred)
   a_sd <- a_name <- NULL
@@ -279,9 +307,17 @@ cf_lm        <- function(y, x, coords, x0=NULL, coords0=NULL, mod_hv){
     a_sd         <- sd(a_mod$pred)
     a_name       <- paste0("additional learning (",add_learn,")")
   }
-  elements       <- c("xb",paste0("spatial_scale",bands_scale),a_sd,"residuals")
-  standard_deviation<- c(sd(x %*% beta_int_summ$coef), apply(Z,2,sd), a_name, resid_sd)
+
+
+  if(!is.null(bands)){
+    elements       <- c("xb",paste0("spatial_scale",bands_scale),a_sd,"residuals")
+    standard_deviation<- c(sd(x %*% beta_int_summ$coef), apply(Z,2,sd), a_name, resid_sd)
+  } else {
+    elements       <- c("xb",a_sd,"residuals")
+    standard_deviation<- c(sd(x %*% beta_int_summ$coef), a_name, resid_sd)
+  }
   sd_summary     <- data.frame(elements, standard_deviation)
+  row.names(sd_summary)<-NULL
 
   ######### error statistics
   r2             <- cor(y[-mod_hv$id_train], pred[-mod_hv$id_train])^2

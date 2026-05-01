@@ -1,24 +1,30 @@
-#' Holdout validation for coarse-to-fine training of spatial linear models
+#' Holdout validation for the Gaussian coarse-to-fine spatial modeling (CFSM)
 #'
-#' Trains a coarse-to-fine spatial linear model and optimizes the spatial scale
-#' (resolution) through progressive holdout validation.
+#' Trains the CFSM-based Gaussian spatial regression and optimizes the number of
+#' spatial scales through sequential holdout validation.
 #'
 #' @param y Vector of response variables (N x 1).
 #' @param x Matrix of covariates (N x K).
 #' @param coords Matrix of 2-dimensional point coordinates (N x 2).
-#' @param train_rat Training sample ratio (default: 0.75). When N >= 1000,
-#' training samples are randomly selected. Otherwise, samples closest to
-#' the k-mean centers are used to stabilize the training.
+#' @param train_rat Training sample ratio (default: 0.75). For small to
+#' moderate samples (N <= 30000), samples closest to the k-means centers
+#' are used for validation samples. For larger samples, training
+#' samples are drawn at random.
 #' @param id_train Optional. If specified, the corresponding samples are used
-#'   as training samples. Otherwise, training samples are selected at random
-#'   (default).
+#'   as training samples. Otherwise, training samples are chosen based on
+#'   `train_rat`.
 #' @param alpha Decay ratio of the kernel bandwidth in the coarse-to-fine
-#'   training (default: 0.9).
-#' @param kernel Kernel type for modeling spatial dependence.
-#'   `"exp"` for the exponential kernel (default) and `"gau"` for the Gaussian kernel.
+#'   training (default: 0.9). As it approaches one, the optimization becomes
+#'   more stringent but requires longer computation time.
+#' @param kernel Kernel type for modeling spatial dependence. `"exp"` for the
+#' exponential kernel (default) and `"gau"` for the Gaussian kernel.
 #' @param add_learn If `"rf"`, random forest is additionally trained to capture
 #'   non-linear patterns and/or higher-order interactions.
 #'   Default is `"none"`, meaning no additional training.
+#' @param seed Random seed used for the training/validation split when
+#'   `id_train` is not supplied. Defaults to `123`, which makes the split
+#'   reproducible across calls. Set to `NULL` to allow each call to draw a
+#'   different split (useful for assessing sensitivity to the split).
 #'
 #' @return A list with the following elements:
 #' \describe{
@@ -31,18 +37,17 @@
 #' @references
 #' Murakami, D., Comber, A., Yoshida, T., Tsutsumida, N., Brunsdon, C.,
 #' & Nakaya, T. (2025).
-#' Coarse-to-fine spatial modeling: A scalable, machine-learning-compatible
-#' spatial model.
-#' *arXiv:2510.00968*.
+#' Coarse-to-fine spatial GLMMs for scalable prediction and multiscale analysis.
+#' *ArXiv*.
 #'
 #' @seealso \code{\link{cf_lm}}
 #' @author Daisuke Murakami
 #'
 #' @export
 cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
-                         alpha=0.9, kernel="exp", add_learn="none"){
+                         alpha=0.9, kernel="exp", add_learn="none", seed=123){
   init          <- initial_fun(y=y,x=x,coords=coords,train_rat=train_rat,
-                               id_train=id_train, x_sel=NULL,func="cf_lm_hv")
+                               id_train=id_train, x_sel=NULL, seed=seed)
   xx_inv        <- init$xx_inv
   beta_int      <- init$beta_int
   beta          <- init$beta
@@ -69,12 +74,12 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
   sel_id_list   <- list(NULL)
   b_old         <- NULL
   bands         <- NULL
-  print("--- SSE: Linear regression ---")
+  print("--- SSE: Linear regression ---", quote = FALSE)
   SSE           <- sum( resid[-id_train]^2 )
   SSE_name      <- "linear regression"
   print(SSE)
 
-  print("--- SSE: Learning multi-scale spatial processes ---")
+  print("--- SSE: Learning multi-scale spatial process ---", quote = FALSE)
   count         <- 0
   VCmat         <- NULL
   for(i in 1:length(Bands)){
@@ -110,27 +115,43 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
       sel_id_list[[i]]<- lmod$sel_id
       beta_int  <- beta_int + beta_int_add + beta_add_m# de-centered coefficients
       count     <- 0
+      comment   <- ""
     } else {
       if(i>10) count      <- count + 1
       if(count==accept_num) break
 
       VCmat     <-rbind(VCmat,rep(0,nx))
       SSE       <-c(SSE, SSE[length(SSE)])
+      comment   <- " no improvement"
     }
 
     SSE_name    <- c(SSE_name, paste0("scale ",i))
     print_add   <- ifelse(i<10,"  "," ")
     print( paste0( formatC(SSE[length(SSE)], digits = 7, format = "g"),#, flag = "#"
-                   " (Scale",print_add, i,")"), quote = FALSE )
+                   " (Scale",print_add, i,")", comment), quote = FALSE )
   }
 
-  Z             <- Z[,1:max(which(apply(Z,2,sd)>0))]
-  print("--- SSE: After coefficient adjustment ---")
-  bid           <- which(apply(Z,2,sd)>0)#which(sapply(BBB, length) > 0)
-  n_bid         <- length(bid)
-  #is_vc         <- (1:nx) %in% vc
-  if(n_bid>0){
-    ZZ        <- Z[,bid]
+  nonzero_Z_sd    <- apply(Z,2,sd)>0
+  if(sum(nonzero_Z_sd)>0){
+    bid           <- which(nonzero_Z_sd)#which(sapply(BBB, length) > 0)
+    max_bid       <- max(bid)
+    Z             <- Z[,1:max_bid, drop=FALSE]
+    n_bid         <- length(bid)
+
+    print("", quote=FALSE)
+    print(paste("-> Selected finest scale: ", max_bid, " (bandwidth: ",
+                formatC(Bands[max_bid], digits = 7, format = "g"),")", sep=""),
+          quote = FALSE)
+    print("", quote=FALSE)
+  } else {
+    bid           <- NULL
+    Z             <- NULL
+    n_bid         <- 0
+  }
+
+  if(n_bid>1){
+    print("--- SSE: After coefficient adjustment ---", quote = FALSE)
+    ZZ          <- Z[,bid]
     bopt_obj    <- (function(bands, ZZ, beta_int, nx,#, is_vc
                              x, y, n_bid, id_train) {
       function(par) {
@@ -157,20 +178,24 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
     }
 
   } else {
-    vpar        <- c(NA,NA)
-    message("Warning: No residual spatial process was detected.")
+    if(n_bid==1){
+      vpar      <- c(1, 0)
+    } else if(n_bid==0){
+      vpar      <- c(NA,NA)
+      message("Warning: No residual spatial process was detected.")
+    }
   }
 
   xbeta         <- matrix(0,nrow=n,ncol=nx)
   for(j in 1:nx){
-    xbeta[,j] <- x[,j]*(beta_int[j,1])
+    xbeta[,j] <- x[,j] * beta_int[j,1]
   }
 
   if(!is.na(vpar[1])){
     w_0       <- exp(-vpar[2]/bands)
     w         <- vpar[1]* w_0/w_0[1]
     w[w<0]    <- 0
-    b         <- Z[,bid]%*%w
+    b         <- Z[,bid,drop=FALSE]%*%w
     xbeta[,1] <- xbeta[,1] + x[,1]*b
   }
 
@@ -180,10 +205,12 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
   SSE           <- c(SSE,sse_hv)
   SSE_name      <- c(SSE_name, "coef. adjustment")
 
-  print(formatC(sse_hv, digits = 7),quote=FALSE)
+  if(n_bid>1){
+    print(formatC(sse_hv, digits = 7),quote=FALSE)
+  }
 
   if(add_learn=="rf"){
-    print("--- SSE: After additional learning ---")
+    print("--- SSE: After additional learning ---", quote = FALSE)
     a_mod0      <- add_mod(add_learn=add_learn, train=TRUE, resid=resid, x=x,
                          coords=coords, x0=NULL, coords0=NULL,id_train=id_train,
                          nx=nx, xname=xname, sse_hv=sse_hv)
