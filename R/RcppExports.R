@@ -9,3 +9,7 @@ lwr_chunk_glm_cpp <- function(nb_id, nb_dist, nb_id0_sexp, nb_dist0_sexp, sel_ch
     invisible(.Call(`_spCF_lwr_chunk_glm_cpp`, nb_id, nb_dist, nb_id0_sexp, nb_dist0_sexp, sel_chunk, id_train_flag, resid, w_obs, x, x0_sexp, B_var, vc_cols, band, kernel_id, b_all, bv_inv_all, pv_inv_all, b_all0_sexp, bv_inv_all0_sexp, pv_inv_all0_sexp, b_old))
 }
 
+lwr_ds_chunk_cpp <- function(nb_id, nb_dist, sel_chunk, local_bands, kernel_id, vc, resid_area, X_area, W_area, a, agg_id, id_train_flag, x, B_var_col, c_shrink, b_all, bv_inv_all, pv_inv_all, b_old) {
+    invisible(.Call(`_spCF_lwr_ds_chunk_cpp`, nb_id, nb_dist, sel_chunk, local_bands, kernel_id, vc, resid_area, X_area, W_area, a, agg_id, id_train_flag, x, B_var_col, c_shrink, b_all, bv_inv_all, pv_inv_all, b_old))
+}
+

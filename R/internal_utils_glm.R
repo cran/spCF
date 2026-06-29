@@ -280,6 +280,12 @@ lwr_glm        <- function(coords, coords_uni,resid, x, w=NULL, offset=NULL,
     bv_all[, -vc]   <- NA
     bv_all[is.nan(bv_all)]<-Inf
 
+    ## Predictive variance per eq.(10): 1 / sum_k (w_k / pv_k). Grows away from
+    ## data (link scale), unlike the coefficient variance bv_all.
+    pv_all          <- 1/pv_inv_all
+    pv_all[, -vc]   <- NA
+    pv_all[is.nan(pv_all)] <- Inf
+
     #pred            <- rowSums(x*b_all)
     if( !is.null(coords0) ){
       bv_all0          <- bv_inv_all0
@@ -292,18 +298,73 @@ lwr_glm        <- function(coords, coords_uni,resid, x, w=NULL, offset=NULL,
       bv_all0[, vc]    <- 1/bv_inv_all0[, vc]
       bv_all0[, -vc]   <- NA
       bv_all0[is.nan(bv_all0)]<-Inf
+      pv_all0          <- 1/pv_inv_all0
+      pv_all0[, -vc]   <- NA
+      pv_all0[is.nan(pv_all0)] <- Inf
       pred0       <- rowSums(x0*b_all0)
 
     } else {
-      b_all0 <-bv_all0<-pred0<-NULL
+      b_all0 <-bv_all0<-pv_all0<-pred0<-NULL
     }
 
-    return(list(beta=b_all, beta_v=bv_all, pred=pred, sel_id=sel_id,
+    return(list(beta=b_all, beta_v=bv_all, beta_pv=pv_all, pred=pred, sel_id=sel_id,
                 coords_cent=coords_cent,
-                beta0=b_all0,beta0_v=bv_all0, pred0=pred0, b_old=b_old,
+                beta0=b_all0,beta0_v=bv_all0, beta0_pv=pv_all0, pred0=pred0, b_old=b_old,
                 run=run,sse_hv=sse_hv,vc_sel=vc, sse_hv0=sse_hv0))
   } else {
     return(list(run=FALSE))
   }
 }
 
+
+## Spatial-block cluster-robust covariance for the (constant) coefficients of a
+## coarse-to-fine spatial GLMM/LM. The model-based covariance treats the fitted
+## spatial field as a known offset, so it ignores that the residual is a
+## spatially correlated random field; with smooth covariates this badly
+## understates Var(beta-hat). Here the field is put back into the working
+## residual (e = field + (y - mu)/mu') and a cluster-robust sandwich is taken
+## over spatial blocks (a GxG grid; G ~ n_loc^{1/3} clamped to [G_lo, 8], with a
+## range guard widening blocks to at least c_guard x the MEDIAN committed
+## bandwidth so blocks exceed the field's correlation length). The defaults
+## c_guard = 1.0 and G_lo = 4 were tuned (gaussian/Poisson/binomial, correlation
+## ranges 0.06-0.40) to remove the over-conservatism of stronger guards at
+## short/moderate range while keeping coverage from collapsing at long range
+## (worst-case coverage ~0.72 across families). Reduces to the field-in-error
+## OLS sandwich for gaussian/identity. Returns the p x p covariance V and G.
+#' @keywords internal
+#' @noRd
+.spcf_clusterSE <- function(y, X, beta, field, offset, family, coords, bands,
+                            c_guard = 1.0) {
+  X <- as.matrix(X); beta <- as.numeric(beta); field <- as.numeric(field)
+  if (is.null(offset)) offset <- 0
+  eta <- .spcf_clip_l(as.numeric(X %*% beta) + field + offset, family)
+  mu  <- family$linkinv(eta); mup <- family$mu.eta(eta)
+  v   <- pmax(family$variance(mu), 1e-8)
+  W   <- pmax(mup^2 / v, 1e-8)
+  e   <- field + (y - mu) / mup                       # working residual WITH the field
+  coords <- as.matrix(coords)
+  ## Per-axis block counts: each coordinate axis is split so that a block side
+  ## exceeds the field's correlation length (proxied by the median committed
+  ## bandwidth), independently in x and y. This keeps blocks larger than the
+  ## dependence range on BOTH axes even when the study region is strongly
+  ## anisotropic (elongated), where a common count per axis would make the narrow
+  ## axis's blocks finer than the range and leave neighbouring blocks correlated.
+  ## Counts are clamped to [2, 8] per axis. The defaults (median bandwidth,
+  ## c_guard = 1) were tuned by checking coverage across response families,
+  ## correlation ranges and aspect ratios.
+  rng <- suppressWarnings(as.numeric(stats::quantile(bands, 0.5, na.rm = TRUE)))
+  if (!length(rng) || !is.finite(rng) || rng <= 0)
+    rng <- mean(apply(coords, 2, function(z) diff(range(z)))) / 8
+  span <- apply(coords, 2, function(z) diff(range(z)))
+  Gxy  <- pmax(2L, pmin(8L, as.integer(floor(span / (c_guard * rng)))))
+  qx  <- stats::quantile(coords[, 1], seq(0, 1, length.out = Gxy[1] + 1))
+  qy  <- stats::quantile(coords[, 2], seq(0, 1, length.out = Gxy[2] + 1))
+  blk <- interaction(cut(coords[, 1], unique(qx), include.lowest = TRUE),
+                     cut(coords[, 2], unique(qy), include.lowest = TRUE),
+                     drop = TRUE)
+  G   <- nlevels(blk)
+  XtWXi <- solve(crossprod(X, W * X))
+  S   <- rowsum(X * (W * e), blk)                     # G x p per-block score sums
+  V   <- (G / (G - 1)) * XtWXi %*% crossprod(S) %*% XtWXi
+  list(V = V, G = G)
+}

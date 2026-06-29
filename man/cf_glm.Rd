@@ -12,19 +12,20 @@ cf_glm(
   x0 = NULL,
   coords0 = NULL,
   offset0 = NULL,
-  mod_hv
+  mod_hv,
+  robust_se = TRUE
 )
 }
 \arguments{
-\item{y}{Vector of response variables (N x 1) including continuous, count,
-and binary responses, following an exponential family distribution.}
+\item{y}{Vector of response variables (N x 1), including continuous, count,
+and binary responses following an exponential family distribution.}
 
 \item{x}{Matrix of covariates (N x K).}
 
 \item{coords}{Matrix of 2-dimensional point coordinates (N x 2).}
 
-\item{offset}{Optional. Vector of offset variable (N x 1) to be included
-in the linear predictor. It is consistent with that of \code{\link{glm}}.}
+\item{offset}{Optional. Vector of offset variables (N x 1) included
+in the linear predictor, consistent with \code{\link{glm}}.}
 
 \item{x0}{Optional. Matrix of covariates at prediction sites (N0 x K).}
 
@@ -35,6 +36,11 @@ prediction sites (N0 x 2).}
 (N0 x 1)}
 
 \item{mod_hv}{Output object of the \code{\link{cf_glm_hv}} function.}
+
+\item{robust_se}{If \code{TRUE} (default), coefficient standard errors
+and predictive uncertainty are computed using a cluster-robust sandwich
+estimator accounting for local spatial correlation.
+Set \code{FALSE} to use naive SEs (not recommended).}
 }
 \value{
 A list with the following elements:
@@ -44,9 +50,13 @@ A list with the following elements:
   \item{sd_summary}{Standard deviation of the regression term (xb), spatial
   process (spatial_scale1, spatial_scale2,...),
   additional learning, and residuals.}
-  \item{e_summary}{Error statistics for the validation samples: pseudo
-  R-squared, root mean squared error (RMSE), and mean absolute error (MAE).}
-  \item{pred}{Predictive means and standard deviations (sample sites).}
+  \item{e_summary}{Holdout validation accuracy evaluated on the validation
+  samples: R-squared (validation_Pseudo-R2), root mean squared error
+  (validation_RMSE), and mean absolute error (validation_MAE).}
+  \item{pred}{Predictive means and standard deviations (sample sites). The
+  spatial-process contribution to the predictive SD is rescaled by a
+  holdout-calibrated factor (stored as \code{other$tau}) estimated on the
+  validation samples.}
   \item{pred0}{Predictive means and standard deviations (prediction sites).}
   \item{pred_q}{Predictive quantiles on the response scale at the sample
   sites. A data frame whose columns \code{q0.005}, \code{q0.025},
@@ -57,21 +67,21 @@ A list with the following elements:
   \item{pred0_q}{Predictive quantiles on the response scale at the
   prediction sites. Column structure is identical to \code{pred_q}.
   \code{NULL} when prediction sites are not supplied.}
-  \item{bands}{Bandwidth values for each scale. The i-th bandwidth is used
-  for the spatial process corresponding to the i-th column of the Z matrix.}
-  \item{Z}{Predictive mean of the spatial process in each scale
+  \item{bands}{Bandwidth values for each scale. The i-th bandwidth
+  corresponds to the i-th column of the Z matrix.}
+  \item{Z}{Predictive mean of the spatial process at each scale
   (sample sites; list).}
-  \item{Z_sd}{Predictive standard deviation of the spatial process in each
+  \item{Z_sd}{Predictive standard deviation of the spatial process at each
   scale (sample sites; list).}
-  \item{Z0}{Predictive mean of the spatial process in each scale
+  \item{Z0}{Predictive mean of the spatial process at each scale
   (prediction sites; list).}
-  \item{Z0_sd}{Predictive standard deviation of the spatial process in each
+  \item{Z0_sd}{Predictive standard deviation of the spatial process at each
   scale (prediction sites; list).}
-  \item{Other}{Other internal output objects.}
+  \item{other}{Other internally used output objects.}
 }
 }
 \description{
-Prediction and regression via CF-GLMMs.
+Scalable prediction, regression, and multiscale analysis via CF-GLMMs.
 }
 \examples{
 ################ Example 1: Count data modeling/Disease mapping/smoothing
@@ -154,7 +164,8 @@ plot(meuse.grid_sf[,c("z1","z2")], pch = 15,
 Murakami, D., Comber, A., Yoshida, T., Tsutsumida, N., Brunsdon, C.,
 & Nakaya, T. (2025).
 Coarse-to-fine spatial GLMMs for scalable prediction and multiscale analysis.
-*ArXiv*.
+*ArXiv preprint*, 2605.01157.
+https://doi.org/10.48550/arXiv.2605.01157
 }
 \seealso{
 \code{\link{cf_glm_hv}}, \code{\link{sp_scalewise}}

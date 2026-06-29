@@ -50,7 +50,7 @@ st_crs(meuse.grid_sf)     <- 28992
 meuse.grid_sf$pred        <- mod$pred0$pred   # Predictive mean
 meuse.grid_sf$pred_sd     <- mod$pred0$pred_sd# Predictive standard deviations
 plot(meuse.grid_sf[,"pred"], border = NA, nbreaks = 20, key.pos=4,axes=TRUE)
-plot(meuse.grid_sf[,"pred_sd"], pal = hcl.colors(9, "Viridis"), border = NA, 
+plot(meuse.grid_sf[,"pred_sd"], pal = function(n) hcl.colors(n, "Viridis"), border = NA, 
      nbreaks = 9, key.pos = 4,axes = TRUE)
 
 ## -----------------------------------------------------------------------------

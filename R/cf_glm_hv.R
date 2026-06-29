@@ -1,48 +1,47 @@
-#' Holdout validation for coarse-to-fine training of spatial generalized linear mixed models (GLMMs)
+#' Holdout validation for
+#' coarse-to-fine spatial generalized linear mixed models (CF-GLMMs)
 #'
-#' Trains a coarse-to-fine spatial GLMMs (CF-GLMMs) and optimizes the spatial
-#' scale through progressive holdout validation.
+#' Trains CF-GLMMs and selects the number of spatial scales through sequential
+#' holdout validation.
 #'
 #' @param y Vector of response variables (N x 1) including continuous, count,
-#'  and binary responses, following an exponential family distribution.
+#'   and binary responses, following an exponential family distribution.
 #' @param x Matrix of covariates (N x K).
 #' @param coords Matrix of 2-dimensional point coordinates (N x 2).
-#' @param offset Optional. Vector of offset variable (N x 1) to be included
-#' in the linear predictor. It is consistent with that of \code{\link{glm}}.
+#' @param offset Optional. Vector of offset variables (N x 1) included in the
+#'   linear predictor, consistent with \code{\link{glm}}.
 #' @param train_rat Training sample ratio (default: 0.75). For small to
-#' moderate samples (N <= 30000), samples closest to the k-means centers
-#' are used for validation samples. For larger samples, training
-#' samples are drawn at random.
-#' @param id_train Optional. If specified, the corresponding samples are used
-#'   as training samples. Otherwise, training samples are chosen based on
-#'   `train_rat`.
+#'   moderate samples (N <= 30000), samples closest to the k-means centers
+#'   are used for validation samples to stabilize training.
+#'   For larger samples, training samples are drawn at random.
+#' @param id_train Optional. ID indicating training samples. If specified,
+#'   the corresponding samples are used as training samples. Otherwise, training
+#'   samples are chosen based on `train_rat`.
 #' @param alpha Decay ratio of the kernel bandwidth in the coarse-to-fine
-#'   training (default: 0.9). As it approaches one, the optimization becomes
-#'   more stringent but requires longer computation time.
+#'   training (default: 0.9). Values closer to one make the optimization
+#'   more stringent but increase computation time.
 #' @param kernel Kernel type for modeling spatial dependence. `"exp"` for
 #'   the exponential kernel (default) and `"gau"` for the Gaussian kernel.
-#' @param family Description of the error distribution and link function
-#'   consistent with the 'family' argument in the \code{\link{glm}} function.
-#'   Functionality has been confirmed for gaussian(), poisson(), and binomial().
-#'   For other families, functionality has only been verified preliminarily.
+#' @param family Error distribution and link function specification,
+#'   consistent with the 'family' argument of \code{\link{glm}}.
 #' @param seed Random seed used for the training/validation split when
-#'   `id_train` is not supplied. Defaults to `1234`, which makes the split
-#'   reproducible across calls. Set to `NULL` to allow each call to draw a
-#'   different split (useful for assessing sensitivity to the split).
+#'   `id_train` is not supplied. Default is `1234`. Set to `NULL` to allow
+#'   a different split at each call (useful for assessing split sensitivity).
 #'
 #' @return A list with the following elements:
 #' \describe{
-#'   \item{loss_hv}{Deviance loss for validation samples.}
-#'   \item{loss_hv_all}{All the deviance losses obtained in each learning step.}
+#'   \item{loss_hv}{Final deviance loss for validation samples.}
+#'   \item{loss_hv_all}{Deviance losses obtained at each learning step.}
 #'   \item{id_train}{ID of training samples.}
-#'   \item{other}{List of other outcomes, which are internally used.}
+#'   \item{other}{Other internally used output objects.}
 #' }
 #'
 #' @references
 #' Murakami, D., Comber, A., Yoshida, T., Tsutsumida, N., Brunsdon, C.,
 #' & Nakaya, T. (2025).
 #' Coarse-to-fine spatial GLMMs for scalable prediction and multiscale analysis.
-#' *ArXiv*.
+#' *ArXiv preprint*, 2605.01157.
+#' https://doi.org/10.48550/arXiv.2605.01157
 #'
 #' @seealso \code{\link{cf_glm}}
 #' @author Daisuke Murakami

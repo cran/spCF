@@ -1,7 +1,7 @@
 Package: spCF
 Type: Package
 Title: Coarse-to-Fine Spatial Modeling
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Daisuke",  "Murakami",   email = "dmuraka@ism.ac.jp",
            role = c("aut", "cre")) ,
@@ -12,14 +12,14 @@ Authors@R: c(
     person("Tomoki",   "Nakaya",     role = "aut"))
 Imports: FNN, fields, nloptr, dbscan, ranger, withr, Rcpp
 LinkingTo: Rcpp
-Suggests: sp, sf, knitr, rmarkdown, CARBayesdata
-Description: Provides functions for coarse-to-fine spatial modeling (CFSM), enabling fast spatial prediction, regression, and uncertainty quantification. This method is suitable for moderate to large samples. For further details, see Murakami et al. (2026) <doi:10.1111/gean.70034>.
+Suggests: sp, sf, knitr, rmarkdown, CARBayesdata, lightgbm
+Description: Provides functions for coarse-to-fine spatial modeling (CFSM), enabling fast spatial prediction, regression, and uncertainty quantification. This method is suitable for moderate to large samples. For methodological details, see Murakami et al. (2026) <doi:10.1111/gean.70034> and related works on its generalized-linear <doi:10.48550/arXiv.2605.01157> and downscaling extensions.
 License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2026-05-01 16:12:02 UTC; dmuraka
+Packaged: 2026-06-29 05:20:46 UTC; dmuraka
 Author: Daisuke Murakami [aut, cre],
   Alexis Comber [aut],
   Takahiro Yoshida [aut],
@@ -28,4 +28,4 @@ Author: Daisuke Murakami [aut, cre],
   Tomoki Nakaya [aut]
 Maintainer: Daisuke Murakami <dmuraka@ism.ac.jp>
 Repository: CRAN
-Date/Publication: 2026-05-01 16:30:09 UTC
+Date/Publication: 2026-06-29 07:50:08 UTC

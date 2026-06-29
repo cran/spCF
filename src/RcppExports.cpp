@@ -69,10 +69,39 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// lwr_ds_chunk_cpp
+void lwr_ds_chunk_cpp(List nb_id, List nb_dist, IntegerVector sel_chunk, NumericVector local_bands, int kernel_id, int vc, NumericVector resid_area, NumericVector X_area, NumericVector W_area, NumericVector a, IntegerVector agg_id, LogicalVector id_train_flag, NumericMatrix x, NumericVector B_var_col, double c_shrink, NumericMatrix b_all, NumericMatrix bv_inv_all, NumericMatrix pv_inv_all, NumericMatrix b_old);
+RcppExport SEXP _spCF_lwr_ds_chunk_cpp(SEXP nb_idSEXP, SEXP nb_distSEXP, SEXP sel_chunkSEXP, SEXP local_bandsSEXP, SEXP kernel_idSEXP, SEXP vcSEXP, SEXP resid_areaSEXP, SEXP X_areaSEXP, SEXP W_areaSEXP, SEXP aSEXP, SEXP agg_idSEXP, SEXP id_train_flagSEXP, SEXP xSEXP, SEXP B_var_colSEXP, SEXP c_shrinkSEXP, SEXP b_allSEXP, SEXP bv_inv_allSEXP, SEXP pv_inv_allSEXP, SEXP b_oldSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type nb_id(nb_idSEXP);
+    Rcpp::traits::input_parameter< List >::type nb_dist(nb_distSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type sel_chunk(sel_chunkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type local_bands(local_bandsSEXP);
+    Rcpp::traits::input_parameter< int >::type kernel_id(kernel_idSEXP);
+    Rcpp::traits::input_parameter< int >::type vc(vcSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type resid_area(resid_areaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type X_area(X_areaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type W_area(W_areaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a(aSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type agg_id(agg_idSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type id_train_flag(id_train_flagSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type B_var_col(B_var_colSEXP);
+    Rcpp::traits::input_parameter< double >::type c_shrink(c_shrinkSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type b_all(b_allSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type bv_inv_all(bv_inv_allSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type pv_inv_all(pv_inv_allSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type b_old(b_oldSEXP);
+    lwr_ds_chunk_cpp(nb_id, nb_dist, sel_chunk, local_bands, kernel_id, vc, resid_area, X_area, W_area, a, agg_id, id_train_flag, x, B_var_col, c_shrink, b_all, bv_inv_all, pv_inv_all, b_old);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_spCF_lwr_chunk_cpp", (DL_FUNC) &_spCF_lwr_chunk_cpp, 20},
     {"_spCF_lwr_chunk_glm_cpp", (DL_FUNC) &_spCF_lwr_chunk_glm_cpp, 21},
+    {"_spCF_lwr_ds_chunk_cpp", (DL_FUNC) &_spCF_lwr_ds_chunk_cpp, 19},
     {NULL, NULL, 0}
 };
 
