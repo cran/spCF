@@ -73,7 +73,6 @@ from aggregate-level response \code{Y}, while ensuring that predictions
 aggregate exactly to the observed aggregate-level values.
 }
 \examples{
-\dontrun{
 set.seed(123)
 require(sf); require(CARBayesdata)
 data(GGHB.IZ)
@@ -111,7 +110,6 @@ agg_poly$Y<- Y
 ar$pred   <- md$pred$pred
 plot(agg_poly["Y"], nbreaks = 20, main = "Aggregated data")
 plot(ar["pred"], nbreaks = 20, main = "Downscaling result")
-}
 
 }
 \references{

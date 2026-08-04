@@ -4,7 +4,17 @@
 \alias{cf_lm}
 \title{Coarse-to-fine spatial modeling (CFSM) for Gaussian response}
 \usage{
-cf_lm(y, x = NULL, coords, x0 = NULL, coords0 = NULL, mod_hv, robust_se = TRUE)
+cf_lm(
+  y,
+  x = NULL,
+  coords,
+  x0 = NULL,
+  coords0 = NULL,
+  mod_hv,
+  robust_se = TRUE,
+  se_type = c("prediction", "mean"),
+  se_method = c("opt", "classic")
+)
 }
 \arguments{
 \item{y}{Vector of response variables (N x 1).}
@@ -24,6 +34,21 @@ prediction sites (N0 x 2).}
 and predictive uncertainty are computed using a cluster-robust sandwich
 estimator accounting for local spatial correlation.
 Set \code{FALSE} to use naive SEs (not recommended).}
+
+\item{se_type}{Type of predictive uncertainty in \code{pred}/\code{pred_q}.
+\code{"prediction"} (default) returns the holdout-calibrated OBSERVATION
+predictive (mean uncertainty + residual variance, split-conformal SD
+scaling on the \code{cf_lm_hv} validation samples); the signal versions are
+kept in \code{pred_signal}/\code{pred_q_signal}. \code{"mean"} returns the
+signal (mean) uncertainty only (previous behaviour).}
+
+\item{se_method}{Cluster-robust coefficient-SE estimator (used when
+\code{robust_se = TRUE}). \code{"opt"} (default) splits the sandwich
+meat into a field-removed observation-noise part and a field part that adds
+the calibrated field variance back with a within-block \code{exp(-d/h)}
+correlation (\code{h} = median committed bandwidth); this is near-nominal. A refit-free leverage leave-one-out ceiling then caps the field term, preventing over-coverage for count (Poisson) responses while leaving already-calibrated families unchanged.
+\code{"classic"} keeps the realised field inside the working residual (the
+previous behaviour), which is valid but conservative.}
 }
 \value{
 A list with the following elements:
@@ -118,6 +143,9 @@ plot(meuse.grid_sf3[,c("z1","z2","z3")], pch = 15,
      cex = 0.5, nbreaks = 20,key.pos=4,axes=TRUE) # Predictive means
 plot(meuse.grid_sf3[,c("z1_sd","z2_sd","z3_sd")], pch = 15,
      cex = 0.5, nbreaks = 20,key.pos=4,axes=TRUE) # Predictive SD
+
+### The same fit, explored interactively over a basemap
+# spCFmap(mod, crs = 28992)   # crs = the system the coordinates are in
 
 }
 \references{

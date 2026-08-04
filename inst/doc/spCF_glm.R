@@ -112,3 +112,9 @@ meuse.grid_sf$z1    <- mod_s1$pred0$pred
 meuse.grid_sf$z2    <- mod_s2$pred0$pred
 plot(meuse.grid_sf[,c("z1","z2")], border=NA, nbreaks=20, key.pos=4, axes=TRUE)
 
+## ----eval = FALSE-------------------------------------------------------------
+# spCFmap()
+
+## ----eval = FALSE-------------------------------------------------------------
+# spCFmap(mod, crs = 28992)   # the flood-probability model of Example 2
+

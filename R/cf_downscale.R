@@ -55,7 +55,6 @@
 #' @author Daisuke Murakami
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(123)
 #' require(sf); require(CARBayesdata)
 #' data(GGHB.IZ)
@@ -93,7 +92,6 @@
 #' ar$pred   <- md$pred$pred
 #' plot(agg_poly["Y"], nbreaks = 20, main = "Aggregated data")
 #' plot(ar["pred"], nbreaks = 20, main = "Downscaling result")
-#' }
 #'
 #' @importFrom dbscan frNN
 #' @importFrom FNN get.knnx
@@ -102,6 +100,9 @@
 #' @export
 cf_downscale <- function(Y, x=NULL, prop_weight=NULL, coords, agg_id, mod_hv,
                   adj=TRUE, nonneg=TRUE){
+
+  .spcf_check_mod_hv(mod_hv, "cf_downscale_hv", "cf_downscale_hv")
+  .spcf_check_downscale(Y, x, prop_weight, coords, agg_id)
 
   ## Internal code uses the paper notation `a` for the proportional
   ## allocation weight; bind the user-facing argument to it once here.
@@ -139,7 +140,7 @@ cf_downscale <- function(Y, x=NULL, prop_weight=NULL, coords, agg_id, mod_hv,
   ## ---- Per-scale spatial increments (Z) and SD (Z_sd) ----
   Z    <- Z_sd   <- matrix(0, nrow=n, ncol=length(bands))
 
-  print("--- Learning multi-scale spatial process ---", quote = FALSE)
+  message("--- Learning multi-scale spatial process ---")
 
   Xmat              <- as.matrix(X)
   Pred_sp_areal     <- numeric(N)
@@ -198,9 +199,8 @@ cf_downscale <- function(Y, x=NULL, prop_weight=NULL, coords, agg_id, mod_hv,
 
     print_add    <- ifelse(i < 10, "  ", " ")
     comment      <- ""
-    print(paste0(" Scale", print_add, i,
-                 " (bandwidth:", format(band, digits = 7), ")", comment),
-          quote = FALSE)
+    message(paste0(" Scale", print_add, i,
+                 " (bandwidth:", format(band, digits = 7), ")", comment))
   }
 
   ## ---- Raw point-level prediction ----
@@ -336,6 +336,7 @@ cf_downscale <- function(Y, x=NULL, prop_weight=NULL, coords, agg_id, mod_hv,
     Pred_agg   <- as.numeric(aggregate(a*pred, by=list(agg_id), sum)[, 2])
   }
   other        <- list(Y=Y, x=x, a=a, agg_id=agg_id, X=X,
+                       coords=coords,
                        beta_vmat=beta_vmat, sigma2_hat=sigma2_hat,
                        pred_naive=pred_naive, pred_sp=pred_sp,
                        Pred_agg=Pred_agg, Pred_areal_hv=Pred_areal_hv,

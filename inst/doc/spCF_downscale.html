@@ -386,8 +386,7 @@ further details.</p>
 <p>Let us load the required packages</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(spCF)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.14.1, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(CARBayesdata)</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(CARBayesdata)</span></code></pre></div>
 <p>The <em>pollutionhealthdata</em> and <em>GGHB.IZ</em> datasets
 included in the <em>CARBayesdata</em> package are used in this example.
 The data comprise the observed respiratory hospitalisation counts
@@ -442,44 +441,44 @@ follows:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>mod_hv   <span class="ot">&lt;-</span> <span class="fu">cf_downscale_hv</span>(<span class="at">Y =</span> Y, <span class="at">Y_type =</span> Y_type, <span class="at">x =</span> x,</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>                            <span class="at">prop_weight =</span> prop_weight,</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                            <span class="at">coords =</span> coords, <span class="at">agg_id =</span> agg_id)</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; [1] --- SSE: Linear regression ---</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; [1] 0.6070381</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [1] --- SSE: Learning multi-scale spatial process ---</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; [1] 0.6092286 (Scale  1) agg constraint not yet satisfied</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.610391 (Scale  2) agg constraint not yet satisfied</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; [1] 0.610114 (Scale  3) agg constraint not yet satisfied</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; [1] 0.6111434 (Scale  4) agg constraint not yet satisfied</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; [1] 0.6116811 (Scale  5) agg constraint not yet satisfied</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [1] 0.608303 (Scale  6) agg constraint not yet satisfied</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; [1] 0.6004919 (Scale  7) agg constraint not yet satisfied</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; [1] 0.5916741 (Scale  8) agg constraint not yet satisfied</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.5832815 (Scale  9) agg constraint not yet satisfied</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; [1] 0.5723028 (Scale 10) agg constraint not yet satisfied</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; [1] 0.5591086 (Scale 11) agg constraint not yet satisfied</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; [1] 0.5437407 (Scale 12) agg constraint not yet satisfied</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; [1] 0.5261863 (Scale 13) agg constraint not yet satisfied</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; [1] 0.5062412 (Scale 14) agg constraint not yet satisfied</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; [1] 0.4881999 (Scale 15) agg constraint not yet satisfied</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; [1] 0.4696572 (Scale 16) agg constraint not yet satisfied</span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; [1] 0.450284 (Scale 17) agg constraint not yet satisfied</span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; [1] 0.4416905 (Scale 18) agg constraint not yet satisfied</span></span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; [1] 0.4253678 (Scale 19) agg constraint not yet satisfied</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; [1] 0.4103166 (Scale 20)</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; [1] 0.3967811 (Scale 21)</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; [1] 0.3797582 (Scale 22)</span></span>
-<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; [1] 0.3764305 (Scale 23)</span></span>
-<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; [1] 0.3764412 (Scale 24)</span></span>
-<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; [1] 0.3796882 (Scale 25)</span></span>
-<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; [1] 0.3797895 (Scale 26)</span></span>
-<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; [1] 0.3763135 (Scale 27)</span></span>
-<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; [1] 0.3815458 (Scale 28)</span></span>
-<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; [1] 0.3813764 (Scale 29)</span></span>
-<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; [1] 0.3836858 (Scale 30)</span></span>
-<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; [1] 0.3843489 (Scale 31)</span></span>
-<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; [1] 0.3846322 (Scale 32)</span></span>
-<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; [1] </span></span>
-<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; [1] -&gt; Selected finest scale: 32 (bandwidth: 698.2244)</span></span>
-<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; [1]</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; --- SSE: Linear regression ---</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 0.6070381</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; --- SSE: Learning multi-scale spatial process ---</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 0.6092286 (Scale  1) agg constraint not yet satisfied</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 0.610391 (Scale  2) agg constraint not yet satisfied</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 0.610114 (Scale  3) agg constraint not yet satisfied</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 0.6111434 (Scale  4) agg constraint not yet satisfied</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 0.6116811 (Scale  5) agg constraint not yet satisfied</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 0.608303 (Scale  6) agg constraint not yet satisfied</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 0.6004919 (Scale  7) agg constraint not yet satisfied</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 0.5916741 (Scale  8) agg constraint not yet satisfied</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 0.5832815 (Scale  9) agg constraint not yet satisfied</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 0.5723028 (Scale 10) agg constraint not yet satisfied</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; 0.5591086 (Scale 11) agg constraint not yet satisfied</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; 0.5437407 (Scale 12) agg constraint not yet satisfied</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; 0.5261863 (Scale 13) agg constraint not yet satisfied</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 0.5062412 (Scale 14) agg constraint not yet satisfied</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 0.4881999 (Scale 15) agg constraint not yet satisfied</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 0.4696572 (Scale 16) agg constraint not yet satisfied</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 0.450284 (Scale 17) agg constraint not yet satisfied</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 0.4416905 (Scale 18) agg constraint not yet satisfied</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; 0.4253678 (Scale 19) agg constraint not yet satisfied</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 0.4103166 (Scale 20)</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 0.3967811 (Scale 21)</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 0.3797582 (Scale 22)</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 0.3764305 (Scale 23)</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 0.3764412 (Scale 24)</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 0.3796882 (Scale 25)</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 0.3797895 (Scale 26)</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; 0.3763135 (Scale 27)</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; 0.3815458 (Scale 28)</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; 0.3813764 (Scale 29)</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; 0.3836858 (Scale 30)</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; 0.3843489 (Scale 31)</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; 0.3846322 (Scale 32)</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; -&gt; Selected finest scale: 32 (bandwidth: 698.2244)</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
 <p>By default, 75% of the aggregate-level units are used for training
 and the remaining units are used for validation
 (<code>train_rat = 0.75</code>). Alternatively, the training units can
@@ -492,39 +491,39 @@ validation score no longer improves.</p>
 <code>cf_downscale</code> function as follows:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>mod      <span class="ot">&lt;-</span> <span class="fu">cf_downscale</span>(<span class="at">Y =</span> Y, <span class="at">x =</span> x, <span class="at">prop_weight =</span> prop_weight,</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>                         <span class="at">coords =</span> coords, <span class="at">agg_id =</span> agg_id, <span class="at">mod_hv =</span> mod_hv)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; [1] --- Learning multi-scale spatial process ---</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  1 (bandwidth:18301.1)</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  2 (bandwidth:16470.99)</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  3 (bandwidth:14823.89)</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  4 (bandwidth:13341.5)</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  5 (bandwidth:12007.35)</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  6 (bandwidth:10806.62)</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  7 (bandwidth:9725.956)</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  8 (bandwidth:8753.36)</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; [1]  Scale  9 (bandwidth:7878.024)</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 10 (bandwidth:7090.222)</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 11 (bandwidth:6381.2)</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 12 (bandwidth:5743.08)</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 13 (bandwidth:5168.772)</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 14 (bandwidth:4651.895)</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 15 (bandwidth:4186.705)</span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 16 (bandwidth:3768.035)</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 17 (bandwidth:3391.231)</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 18 (bandwidth:3052.108)</span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 19 (bandwidth:2746.897)</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 20 (bandwidth:2472.208)</span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 21 (bandwidth:2224.987)</span></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 22 (bandwidth:2002.488)</span></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 23 (bandwidth:1802.239)</span></span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 24 (bandwidth:1622.015)</span></span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 25 (bandwidth:1459.814)</span></span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 26 (bandwidth:1313.832)</span></span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 27 (bandwidth:1182.449)</span></span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 28 (bandwidth:1064.204)</span></span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 29 (bandwidth:957.7839)</span></span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 30 (bandwidth:862.0055)</span></span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 31 (bandwidth:775.8049)</span></span>
-<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt; [1]  Scale 32 (bandwidth:698.2244)</span></span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; --- Learning multi-scale spatial process ---</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;  Scale  1 (bandwidth:18301.1)</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt;  Scale  2 (bandwidth:16470.99)</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;  Scale  3 (bandwidth:14823.89)</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;  Scale  4 (bandwidth:13341.5)</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;  Scale  5 (bandwidth:12007.35)</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt;  Scale  6 (bandwidth:10806.62)</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;  Scale  7 (bandwidth:9725.956)</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;  Scale  8 (bandwidth:8753.36)</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt;  Scale  9 (bandwidth:7878.024)</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;  Scale 10 (bandwidth:7090.222)</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt;  Scale 11 (bandwidth:6381.2)</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt;  Scale 12 (bandwidth:5743.08)</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt;  Scale 13 (bandwidth:5168.772)</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt;  Scale 14 (bandwidth:4651.895)</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt;  Scale 15 (bandwidth:4186.705)</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt;  Scale 16 (bandwidth:3768.035)</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt;  Scale 17 (bandwidth:3391.231)</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt;  Scale 18 (bandwidth:3052.108)</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt;  Scale 19 (bandwidth:2746.897)</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt;  Scale 20 (bandwidth:2472.208)</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt;  Scale 21 (bandwidth:2224.987)</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt;  Scale 22 (bandwidth:2002.488)</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt;  Scale 23 (bandwidth:1802.239)</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt;  Scale 24 (bandwidth:1622.015)</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt;  Scale 25 (bandwidth:1459.814)</span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt;  Scale 26 (bandwidth:1313.832)</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt;  Scale 27 (bandwidth:1182.449)</span></span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt;  Scale 28 (bandwidth:1064.204)</span></span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt;  Scale 29 (bandwidth:957.7839)</span></span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt;  Scale 30 (bandwidth:862.0055)</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt;  Scale 31 (bandwidth:775.8049)</span></span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt;  Scale 32 (bandwidth:698.2244)</span></span></code></pre></div>
 <p>By default, a per-area multiplicative adjustment
 (<code>adj = TRUE</code>, the default) is applied to satisfy the
 aggregation constraint, so that the downscaled predictions aggregate

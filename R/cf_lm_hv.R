@@ -24,6 +24,9 @@
 #'   (\pkg{lightgbm}); both are tuned by minimizing validation SSE.
 #'   For `"lightgbm"`, the predictive quantiles are conformalized on the
 #'   validation split so that their uncertainty is calibrated.
+#'   Both learners are optional: the corresponding package
+#'   (\pkg{ranger} or \pkg{lightgbm}) must be installed, and an informative
+#'   error is raised if it is not.
 #'   Default is `"none"`, meaning no additional training.
 #' @param seed Random seed used for the training/validation split when
 #'   `id_train` is not supplied. Default is `123`. Set to `NULL` to allow
@@ -50,6 +53,9 @@
 #' @export
 cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
                          alpha=0.9, kernel="exp", add_learn="none", seed=123){
+  n_obs         <- .spcf_check_data(y = y, x = x, coords = coords)
+  .spcf_check_hv_args(n_obs, train_rat, id_train, alpha, kernel, add_learn)
+
   init          <- initial_fun(y=y,x=x,coords=coords,train_rat=train_rat,
                                id_train=id_train, x_sel=NULL, seed=seed)
   xx_inv        <- init$xx_inv
@@ -78,12 +84,12 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
   sel_id_list   <- list(NULL)
   b_old         <- NULL
   bands         <- NULL
-  print("--- SSE: Linear regression ---", quote = FALSE)
+  message("--- SSE: Linear regression ---")
   SSE           <- sum( resid[-id_train]^2 )
   SSE_name      <- "linear regression"
-  print(SSE)
+  message(format(SSE))
 
-  print("--- SSE: Learning multi-scale spatial process ---", quote = FALSE)
+  message("--- SSE: Learning multi-scale spatial process ---")
   count         <- 0
   VCmat         <- NULL
   for(i in 1:length(Bands)){
@@ -131,8 +137,8 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
 
     SSE_name    <- c(SSE_name, paste0("scale ",i))
     print_add   <- ifelse(i<10,"  "," ")
-    print( paste0( formatC(SSE[length(SSE)], digits = 7, format = "g"),#, flag = "#"
-                   " (Scale",print_add, i,")", comment), quote = FALSE )
+    message( paste0( formatC(SSE[length(SSE)], digits = 7, format = "g"),#, flag = "#"
+                   " (Scale",print_add, i,")", comment))
   }
 
   nonzero_Z_sd    <- apply(Z,2,sd)>0
@@ -142,11 +148,10 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
     Z             <- Z[,1:max_bid, drop=FALSE]
     n_bid         <- length(bid)
 
-    print("", quote=FALSE)
-    print(paste("-> Selected finest scale: ", max_bid, " (bandwidth: ",
-                formatC(Bands[max_bid], digits = 7, format = "g"),")", sep=""),
-          quote = FALSE)
-    print("", quote=FALSE)
+    message("")
+    message(paste("-> Selected finest scale: ", max_bid, " (bandwidth: ",
+                formatC(Bands[max_bid], digits = 7, format = "g"),")", sep=""))
+    message("")
   } else {
     bid           <- NULL
     Z             <- NULL
@@ -154,7 +159,7 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
   }
 
   if(n_bid>1){
-    print("--- SSE: After coefficient adjustment ---", quote = FALSE)
+    message("--- SSE: After coefficient adjustment ---")
     ZZ          <- Z[,bid]
     bopt_obj    <- (function(bands, ZZ, beta_int, nx,#, is_vc
                              x, y, n_bid, id_train) {
@@ -210,11 +215,11 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
   SSE_name      <- c(SSE_name, "coef. adjustment")
 
   if(n_bid>1){
-    print(formatC(sse_hv, digits = 7),quote=FALSE)
+    message(formatC(sse_hv, digits = 7))
   }
 
   if(add_learn=="rf" || add_learn=="lightgbm"){
-    print("--- SSE: After additional learning ---", quote = FALSE)
+    message("--- SSE: After additional learning ---")
     a_mod0      <- add_mod(add_learn=add_learn, train=TRUE, resid=resid, x=x,
                          coords=coords, x0=NULL, coords0=NULL,id_train=id_train,
                          nx=nx, xname=xname, sse_hv=sse_hv)
@@ -222,7 +227,7 @@ cf_lm_hv     <- function(y, x=NULL, coords, train_rat=0.75, id_train=NULL,
     SSE         <- c(SSE,sse_hv)
     SSE_name    <- c(SSE_name, "additional learning")
 
-    print(formatC(sse_hv, digits = 7),quote=FALSE)
+    message(formatC(sse_hv, digits = 7))
   } else if(add_learn=="none"){
     a_mod0      <- list(a_par=NA, a_run=FALSE, add_learn=add_learn)
   }

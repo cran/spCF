@@ -9,10 +9,23 @@
 #' @param coords0 Optional. Matrix of 2-dimensional point coordinates at
 #'   prediction sites (N0 x 2).
 #' @param mod_hv Output object of the \code{\link{cf_lm_hv}} function.
+#' @param se_type Type of predictive uncertainty in \code{pred}/\code{pred_q}.
+#'   \code{"prediction"} (default) returns the holdout-calibrated OBSERVATION
+#'   predictive (mean uncertainty + residual variance, split-conformal SD
+#'   scaling on the \code{cf_lm_hv} validation samples); the signal versions are
+#'   kept in \code{pred_signal}/\code{pred_q_signal}. \code{"mean"} returns the
+#'   signal (mean) uncertainty only (previous behaviour).
 #' @param robust_se If \code{TRUE} (default), coefficient standard errors
 #'   and predictive uncertainty are computed using a cluster-robust sandwich
 #'   estimator accounting for local spatial correlation.
 #'   Set \code{FALSE} to use naive SEs (not recommended).
+#' @param se_method Cluster-robust coefficient-SE estimator (used when
+#'   \code{robust_se = TRUE}). \code{"opt"} (default) splits the sandwich
+#'   meat into a field-removed observation-noise part and a field part that adds
+#'   the calibrated field variance back with a within-block \code{exp(-d/h)}
+#'   correlation (\code{h} = median committed bandwidth); this is near-nominal. A refit-free leverage leave-one-out ceiling then caps the field term, preventing over-coverage for count (Poisson) responses while leaving already-calibrated families unchanged.
+#'   \code{"classic"} keeps the realised field inside the working residual (the
+#'   previous behaviour), which is valid but conservative.
 #'
 #' @return A list with the following elements:
 #' \describe{
@@ -113,23 +126,31 @@
 #' plot(meuse.grid_sf3[,c("z1_sd","z2_sd","z3_sd")], pch = 15,
 #'      cex = 0.5, nbreaks = 20,key.pos=4,axes=TRUE) # Predictive SD
 #'
+#' ### The same fit, explored interactively over a basemap
+#' # spCFmap(mod, crs = 28992)   # crs = the system the coordinates are in
+#'
 #' @author Daisuke Murakami
 #'
 #' @importFrom dbscan frNN
 #' @importFrom fields rdist
 #' @importFrom FNN get.knnx
 #' @importFrom nloptr nloptr
-#' @importFrom ranger ranger
 #' @importFrom utils capture.output
-#' @importFrom stats approx kmeans predict quantile rnorm runif sd var cor
-#' glm as.formula vcov qnorm residuals coefficients gaussian
+#' @importFrom stats approx kmeans predict quantile rnorm runif sd var cor glm as.formula vcov qnorm residuals coefficients gaussian
 #'
 #' @export
 cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
-                         robust_se=TRUE){
+                         robust_se=TRUE, se_type=c("prediction","mean"),
+                         se_method=c("opt","classic")){
+  se_type      <- match.arg(se_type)
+  se_method    <- match.arg(se_method)
+
+  .spcf_check_mod_hv(mod_hv, "cf_lm_hv", "cf_lm_hv")
+  .spcf_check_data(y = y, x = x, coords = coords)
+  .spcf_check_newdata(x = x, x0 = x0, coords0 = coords0)
 
   if(!is.null(coords0) && !is.null(x) && is.null(x0)){
-    stop("Error: x0 must be provided when x is specified")
+    .spcf_stop("'x0' must be provided when 'x' is specified: the prediction sites need the same covariates.")
   }
 
   bands          <- mod_hv$other$bands
@@ -179,7 +200,7 @@ cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
   }
 
   ##################### main loop for feature extraction
-  print("--- Learning multi-scale spatial process ---", quote=FALSE)
+  message("--- Learning multi-scale spatial process ---")
 
   bands_scale    <- which(mod_hv$other$VCmat[,1]==1)
 
@@ -233,9 +254,8 @@ cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
       }
 
       print_add   <- ifelse(i<10,"  "," ")
-      print( paste0( " Scale",print_add,i,
-                     " (bandwidth:",format(bands_all[i],digits=7),")", comment),
-             quote = FALSE )
+      message( paste0( " Scale",print_add,i,
+                     " (bandwidth:",format(bands_all[i],digits=7),")", comment))
     }
   } else {
     message("Warning: No residual spatial process was modeled")
@@ -365,6 +385,26 @@ cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
     Z0_sd        <- Z0_pv * sf0_pt
   }
 
+  ## opt+field coefficient covariance (default se_method): recomputed here, once
+  ## the calibrated per-point field SD s_f = sqrt(fv_cal) is available, replacing
+  ## the classic field-retained cluster-robust covariance. Updates the reported
+  ## SEs and the coefficient-uncertainty term coef_var of the predictive SE.
+  if(robust_se && se_method=="opt" && n_bid>0 && exists("b")){
+    ofse <- tryCatch(.spcf_optfield_SE(y=y, X=x, beta=beta_int, field=b,
+                                       s_f=sqrt(fv_cal), offset=NULL,
+                                       family=gaussian(), coords=coords, bands=bands),
+                     error=function(e) NULL)
+    if(!is.null(ofse) && all(is.finite(diag(ofse$V))) && all(diag(ofse$V) > 0)){
+      beta_int_vmat <- ofse$V
+      beta_int_se   <- sqrt(diag(ofse$V))
+      beta_int_summ <- data.frame(coef=beta_int, coef_se=beta_int_se,
+                                  lower_95CI=beta_int-1.96*beta_int_se,
+                                  upper_95CI=beta_int+1.96*beta_int_se)
+      coef_var      <- rowSums((x %*% beta_int_vmat) * x)
+      if(!is.null(coords0)) coef_var0 <- rowSums((x0 %*% beta_int_vmat) * x0)
+    }
+  }
+
   pred_q <- pred0_q <- NULL
   if(a_run){
     ## ---- Total CQR (rf/lightgbm): calibrate the combined (core +
@@ -432,11 +472,11 @@ cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
 
 
   if(!is.null(bands)){
-    elements       <- c("xb",paste0("spatial_scale",bands_scale),a_sd,"residuals")
-    standard_deviation<- c(sd(x %*% beta_int_summ$coef), apply(Z,2,sd), a_name, resid_sd)
+    elements       <- c("xb",paste0("spatial_scale",bands_scale),a_name,"residuals")
+    standard_deviation<- c(sd(x %*% beta_int_summ$coef), apply(Z,2,sd), a_sd, resid_sd)
   } else {
-    elements       <- c("xb",a_sd,"residuals")
-    standard_deviation<- c(sd(x %*% beta_int_summ$coef), a_name, resid_sd)
+    elements       <- c("xb",a_name,"residuals")
+    standard_deviation<- c(sd(x %*% beta_int_summ$coef), a_sd, resid_sd)
   }
   sd_summary     <- data.frame(elements, standard_deviation)
   row.names(sd_summary)<-NULL
@@ -469,6 +509,13 @@ cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
                          pred_q=pred_q, pred0_q=pred0_q, bands=bands,
                          Z=Z,Z_sd=Z_sd, Z0=Z0, Z0_sd=Z0_sd, other=other,
                          call = match.call() )
+  if(identical(se_type,"prediction")){
+    ob <- tryCatch(.spcf_obs_predict(family=stats::gaussian(), y=y, mod_hv=mod_hv,
+                     pred_in=result$pred$pred, predq_in=result$pred_q,
+                     pred_out=result$pred0$pred, predq_out=result$pred0_q),
+                   error=function(e) NULL)
+    result <- .spcf_apply_obs(result, ob)
+  } else result$other$se_type <- "mean"
   class( result ) <- "cf_lm"
   return( result )
 }
@@ -478,12 +525,12 @@ cf_lm        <- function(y, x=NULL, coords, x0=NULL, coords0=NULL, mod_hv,
 print.cf_lm <- function(x, ...)
   {
     cat("Call:\n")
-    print(x$call)
+    message(format(x$call))
     cat("\n----Coefficients---------------------------------------\n")
-    print(x$beta)
+    message(format(x$beta))
     cat("\n----Standard deviations (influential elements only)----\n")
-    print(x$sd_summary)
+    message(format(x$sd_summary))
     cat("\n----Error statistics ----------------------------------\n")
-    print(x$e_summary)
+    message(format(x$e_summary))
     invisible(x)
   }

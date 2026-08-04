@@ -45,6 +45,9 @@ random forest (\pkg{ranger}) and `"lightgbm"` uses LightGBM
 (\pkg{lightgbm}); both are tuned by minimizing validation SSE.
 For `"lightgbm"`, the predictive quantiles are conformalized on the
 validation split so that their uncertainty is calibrated.
+Both learners are optional: the corresponding package
+(\pkg{ranger} or \pkg{lightgbm}) must be installed, and an informative
+error is raised if it is not.
 Default is `"none"`, meaning no additional training.}
 
 \item{seed}{Random seed used for the training/validation split when

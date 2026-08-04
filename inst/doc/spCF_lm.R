@@ -72,3 +72,9 @@ plot(meuse.grid_sf[,c("z1_sd","z2_sd","z3_sd")],
      pal = function(n) hcl.colors(n, "Viridis"),
      border = NA,key.pos=4,axes=TRUE)
 
+## ----eval = FALSE-------------------------------------------------------------
+# spCFmap()
+
+## ----eval = FALSE-------------------------------------------------------------
+# spCFmap(mod, crs = 28992)
+

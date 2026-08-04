@@ -63,6 +63,14 @@ cf_downscale_hv     <- function(Y, Y_type="sum", x=NULL, prop_weight=NULL,
                          alpha=0.9, kernel="exp",
                          rel_tol=1e-4, seed=123){
 
+  if(!is.character(Y_type) || length(Y_type) != 1L ||
+     !(Y_type %in% c("sum","mean"))){
+    .spcf_stop("'Y_type' must be either \"sum\" (areal totals) or \"mean\" (areal means); got ",
+               paste(sQuote(Y_type), collapse=", "), ".")
+  }
+  dims            <- .spcf_check_downscale(Y, x, prop_weight, coords, agg_id)
+  .spcf_check_hv_args(dims$N, train_rat, id_train, alpha, kernel)
+
   ## Internal code uses the paper notation `a` for the proportional
   ## allocation weight; bind the user-facing argument to it once here.
   a               <- prop_weight
@@ -147,14 +155,14 @@ cf_downscale_hv     <- function(Y, Y_type="sum", x=NULL, prop_weight=NULL,
                                      probs = agg_q, names = FALSE))
 
   ## Match the cf_lm_hv message style.
-  print("--- SSE: Linear regression ---", quote = FALSE)
+  message("--- SSE: Linear regression ---")
   SSE_init <- if(use_valid) sse_va0 else sse_tr0
-  print(formatC(SSE_init, digits = 7, format = "g"), quote = FALSE)
+  message(formatC(SSE_init, digits = 7, format = "g"))
 
   SSE      <- SSE_init
   SSE_name <- "linear regression"
 
-  print("--- SSE: Learning multi-scale spatial process ---", quote = FALSE)
+  message("--- SSE: Learning multi-scale spatial process ---")
 
   ## ---- agg_constrained main loop ----------------------------------------
   agg_satisfied <- FALSE
@@ -254,9 +262,8 @@ cf_downscale_hv     <- function(Y, Y_type="sum", x=NULL, prop_weight=NULL,
     print_add  <- ifelse(i < 10, "  ", " ")
     comment    <- if(agg_satisfied) ""
                   else " agg constraint not yet satisfied"
-    print(paste0(formatC(sse_show, digits = 7, format = "g"),
-                 " (Scale", print_add, i, ")", comment),
-          quote = FALSE)
+    message(paste0(formatC(sse_show, digits = 7, format = "g"),
+                 " (Scale", print_add, i, ")", comment))
     SSE        <- c(SSE, sse_show)
     SSE_name   <- c(SSE_name, paste0("scale ", i))
 
@@ -266,12 +273,11 @@ cf_downscale_hv     <- function(Y, Y_type="sum", x=NULL, prop_weight=NULL,
   ## Selected finest scale.
   K <- length(bands)
   if(K > 0){
-    print("", quote = FALSE)
-    print(paste0("-> Selected finest scale: ", K,
+    message("")
+    message(paste0("-> Selected finest scale: ", K,
                  " (bandwidth: ",
-                 formatC(bands[K], digits = 7, format = "g"), ")"),
-          quote = FALSE)
-    print("", quote = FALSE)
+                 formatC(bands[K], digits = 7, format = "g"), ")"))
+    message("")
   } else {
     message("Warning: No residual spatial process was detected.")
   }

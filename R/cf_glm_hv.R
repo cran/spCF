@@ -50,6 +50,9 @@
 cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=NULL,
                        alpha=0.9, kernel="exp", family=gaussian(), seed=1234){
 
+  n_obs          <- .spcf_check_data(y = y, x = x, coords = coords, offset = offset)
+  .spcf_check_hv_args(n_obs, train_rat, id_train, alpha, kernel)
+
   init           <- initial_fun_glm(x=x,y=y,coords=coords,offset=offset,
                                     train_rat=train_rat,x_sel=NULL,family=family,
                                     id_train=id_train, seed=seed)
@@ -73,6 +76,17 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
   Z              <- matrix(0,nrow=n,ncol=Bands_max)
   max_d          <- sqrt(diff(range(coords_uni[,1]))^2+diff(range(coords_uni[,2]))^2)/3
   Bands          <- max_d*alpha^(1:Bands_max)
+  ## Floor the bandwidth grid at ~half the typical inter-point spacing (median
+  ## nearest-neighbour distance of the unique locations), mirroring cf_dglm_hv:
+  ## bands finer than the data resolution carry no information and make the
+  ## kernel exp(-d/b) underflow to empty knot weights, so the greedy scan would
+  ## only waste per-band frNN/kmeans/glm cost on them. Trims the (never-improving)
+  ## fine tail of the grid; the accepted scales are unchanged.
+  band_min       <- 0.5*stats::median(FNN::get.knn(coords_uni, k=1)$nn.dist)
+  if(is.finite(band_min) && band_min>0){
+    Bands        <- Bands[Bands >= band_min]
+    if(length(Bands)==0) Bands <- max_d*alpha
+  }
   accept_num     <- 5
 
   ##################### main loop for feature extraction
@@ -80,12 +94,12 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
   sel_id_list    <- list(NULL)
   b_old          <- NULL
   bands          <- NULL
-  print("--- Deviance: Basic GLM ---", quote=FALSE)
+  message("--- Deviance: Basic GLM ---")
   Loss  <-sse_hv0<- sum( residuals(init$gmod, type="deviance")[-id_train]^2 )
   Loss_name      <- "basic GLM"
-  print( Loss, quote=FALSE )
+  message(format(Loss))
 
-  print("--- Deviance: Learning multi-scale spatial process ---", quote=FALSE)
+  message("--- Deviance: Learning multi-scale spatial process ---")
   l_pred         <- 0
   count          <- 0
   VCmat          <- NULL
@@ -110,8 +124,8 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
 
       l_pred_add      <- lmod$pred
       l_pred          <- l_pred  + l_pred_add
-      l_bias          <- mean(l_pred)         # 予測値の平均
-      l_pred          <- l_pred   - l_bias    # 予測値の平均からの
+      l_bias          <- mean(l_pred)         # mean of the linear predictor
+      l_pred          <- l_pred   - l_bias    # centre it before the next scale
 
       beta_add        <- lmod$beta
       beta_add[,1]    <- beta_add[,1]- l_bias
@@ -120,7 +134,10 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
       sel_id_list[[i]]<- lmod$sel_id
 
       l_pred_off      <- .spcf_clip_l(l_pred, family) + offset
-      gmod0           <- glm(y ~ 0 + x + offset(l_pred_off),family=family)
+      ## glm.fit direct (dglm-style): identical MLE / working residuals /
+      ## weights as glm(y ~ 0 + x + offset(l_pred_off)), without the formula
+      ## model.frame/terms rebuild each band.
+      gmod0           <- glm.fit(x, y, offset=l_pred_off, family=family)
       resid           <- gmod0$residuals
       w               <- gmod0$weights
       beta_int_new    <- matrix(gmod0$coefficients)
@@ -128,7 +145,8 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
         beta[,jj]     <- beta[,jj] - beta_int[jj,1] + beta_int_new[jj]
       }
       beta_int        <- beta_int_new
-      loss_new        <- sum(residuals(gmod0, type="deviance")[-id_train]^2 )
+      ## sum of squared deviance residuals == sum of per-obs deviance contribs
+      loss_new        <- sum(family$dev.resids(y, gmod0$fitted.values, 1)[-id_train] )
       Loss            <- c(Loss ,loss_new)
 
       vc_sel          <- lmod$vc_sel
@@ -147,8 +165,8 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
 
     Loss_name     <- c(Loss_name, paste0("scale ",i))
     print_add<-ifelse(i<10,"  "," ")
-    print( paste0( formatC(Loss[length(Loss)], digits = 7, format = "g"),#, flag = "#"
-                   " (Scale",print_add, i,")", comment), quote = FALSE )
+    message( paste0( formatC(Loss[length(Loss)], digits = 7, format = "g"),#, flag = "#"
+                   " (Scale",print_add, i,")", comment))
   }
 
   nonzero_Z_sd    <- apply(Z,2,sd)>0
@@ -160,11 +178,10 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
     z_pred        <- 0
     if(n_bid>0) z_pred  <- rowSums(Z[,bid,drop=FALSE])
 
-    print("", quote=FALSE)
-    print(paste("-> Selected finest scale: ", max_bid, " (bandwidth: ",
-                formatC(Bands[max_bid], digits = 7, format = "g"),")", sep=""),
-          quote = FALSE)
-    print("", quote=FALSE)
+    message("")
+    message(paste("-> Selected finest scale: ", max_bid, " (bandwidth: ",
+                formatC(Bands[max_bid], digits = 7, format = "g"),")", sep=""))
+    message("")
 
   } else {
     bid           <- NULL#which(apply(Z,2,sd)>0)
@@ -183,7 +200,7 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
   ### under development
   #a_par        <- data.frame(num_leaves=NA, min_data_in_leaf=NA,learning_rate=NA)
   #if( add_learn=="lgb" ){
-  #  print("--- Loss: Additional learning ( LightGBM ) ---")
+  #  message("--- Loss: Additional learning ( LightGBM ) ---")
   #  a_mod0     <- add_mod(add_learn="lgb", train=TRUE, y=y, xbeta=xbeta, x=x,
   #                        coords=coords, xbeta0=NULL, x0=NULL, coords0=NULL,
   #                        id_train=id_train, nx=nx, xname=xname, seed=123,
@@ -191,7 +208,7 @@ cf_glm_hv  <- function(y, x=NULL, coords, offset=NULL, train_rat=0.75, id_train=
   #  a_par      <- a_mod0$a_par
   #  a_run      <- a_mod0$a_run
   #  loss_hv    <- a_mod0$loss_hv
-  #  print(formatC(loss_hv, digits = 7),quote=FALSE)
+  #  message(formatC(loss_hv, digits = 7))
   #} else if(add_learn=="none"){
   #  a_mod0     <- list(a_par=NA, a_run=FALSE, add_learn=add_learn)
   #}

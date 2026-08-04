@@ -2,7 +2,7 @@
 title: "Coarse-to-fine spatial downscaling (CF-DS): Application example"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{spCF_downscale}
+  %\VignetteIndexEntry{Coarse-to-fine spatial downscaling (CF-DS): Application example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 references:
