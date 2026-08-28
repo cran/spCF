@@ -145,10 +145,13 @@ mod_hv <- cf_dglm_hv(y = air$pm10, x = x, coords = coords, time = air$time)
 ### the data (time = 61), which the AR(1) predict step turns into a forecast
 uni    <- !duplicated(air$station)
 n0     <- sum(uni)
+coords0<- coords[uni, ]
+time0  <- rep(61, n0)
+x0 = data.frame(sin12 = rep(sin(2 * pi / 12), n0),
+                                  cos12 = rep(cos(2 * pi / 12), n0))
+
 mod    <- cf_dglm(y = air$pm10, x = x, coords = coords, time = air$time,
-                  x0 = data.frame(sin12 = rep(sin(2 * pi / 12), n0),
-                                  cos12 = rep(cos(2 * pi / 12), n0)),
-                  coords0 = coords[uni, ], time0 = rep(61, n0),
+                  x0 = x0, coords0 = coords0, time0 = time0,
                   mod_hv = mod_hv)
 mod
 

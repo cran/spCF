@@ -115,10 +115,13 @@
 #' ### the data (time = 61), which the AR(1) predict step turns into a forecast
 #' uni    <- !duplicated(air$station)
 #' n0     <- sum(uni)
+#' coords0<- coords[uni, ]
+#' time0  <- rep(61, n0)
+#' x0 = data.frame(sin12 = rep(sin(2 * pi / 12), n0),
+#'                                   cos12 = rep(cos(2 * pi / 12), n0))
+#'
 #' mod    <- cf_dglm(y = air$pm10, x = x, coords = coords, time = air$time,
-#'                   x0 = data.frame(sin12 = rep(sin(2 * pi / 12), n0),
-#'                                   cos12 = rep(cos(2 * pi / 12), n0)),
-#'                   coords0 = coords[uni, ], time0 = rep(61, n0),
+#'                   x0 = x0, coords0 = coords0, time0 = time0,
 #'                   mod_hv = mod_hv)
 #' mod
 #'
@@ -443,6 +446,7 @@ cf_dglm <- function(y, x = NULL, coords, time, offset = NULL,
                 kernel = kernel, beta_int_vmat = Vbeta, loss_hv = mod_hv$loss_hv,
                 tau = tau, tv_cols = tv_cols, q_tvc = q_tvc,
                 time = time, time0 = if (has0) time0 else NULL,
+                x = x, x0 = if (has0) x0 else NULL,
                 time_levels = lev_work, time_levels_train = lev,
                 robust_se = robust_se, se_blocks = G_block)
   result <- list(beta = beta_summ, beta_tv = beta_tv, beta_tv_sd = beta_tv_sd,

@@ -502,16 +502,44 @@ scale-wise spatial processes, and error statistics are displayed as
 follows:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>mod</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; cf_lm(y = y, x = x, coords = coords, x0 = x0, coords0 = coords0,     mod_hv = mod_hv)</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; ----Coefficients---------------------------------------</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; c(&quot; 6.7943858&quot;, &quot;-2.6034800&quot;, &quot;-0.6197818&quot;, &quot;-0.6186406&quot;)c(&quot;0.07688243&quot;, &quot;0.20273851&quot;, &quot;0.07160817&quot;, &quot;0.12195193&quot;)c(&quot; 6.6436962&quot;, &quot;-3.0008474&quot;, &quot;-0.7601338&quot;, &quot;-0.8576664&quot;)c(&quot; 6.9450754&quot;, &quot;-2.2061125&quot;, &quot;-0.4794298&quot;, &quot;-0.3796148&quot;)</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; ----Standard deviations (influential elements only)----</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; c(&quot;xb&quot;, &quot;spatial_scale1&quot;, &quot;spatial_scale2&quot;, &quot;spatial_scale3&quot;, &quot;spatial_scale4&quot;, &quot;spatial_scale5&quot;, &quot;spatial_scale6&quot;, &quot;spatial_scale7&quot;, &quot;spatial_scale8&quot;, &quot;spatial_scale9&quot;, &quot;spatial_scale10&quot;, &quot;spatial_scale11&quot;, &quot;spatial_scale12&quot;, &quot;spatial_scale13&quot;, &quot;spatial_scale14&quot;, &quot;spatial_scale16&quot;, &quot;spatial_scale18&quot;, &quot;spatial_scale20&quot;, &quot;spatial_scale22&quot;, &quot;residuals&quot;)c(&quot;0.68443397&quot;, &quot;0.09247398&quot;, &quot;0.05116822&quot;, &quot;0.02805099&quot;, &quot;0.01818166&quot;, &quot;0.01708566&quot;, &quot;0.01654673&quot;, &quot;0.01688475&quot;, &quot;0.02094416&quot;, &quot;0.02299996&quot;, &quot;0.02569416&quot;, &quot;0.02765592&quot;, &quot;0.02790987&quot;, &quot;0.02789937&quot;, &quot;0.02680498&quot;, &quot;0.03016021&quot;, &quot;0.03664008&quot;, &quot;0.04566013&quot;, &quot;0.05287690&quot;, &quot;0.17180876&quot;)</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; ----Error statistics ----------------------------------</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; c(&quot;validation_R2&quot;, &quot;validation_RMSE&quot;, &quot;validation_MAE&quot;)c(&quot;0.8154853&quot;, &quot;0.2901086&quot;, &quot;0.2300231&quot;)</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; cf_lm(y = y, x = x, coords = coords, x0 = x0, coords0 = coords0, </span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;     mod_hv = mod_hv)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; ----Coefficients---------------------------------------</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;                 coef    coef_se lower_95CI upper_95CI</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; Intercept  6.7943858 0.07688243  6.6436962  6.9450754</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; dist      -2.6034800 0.20273851 -3.0008474 -2.2061125</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; ffreq2    -0.6197818 0.07160817 -0.7601338 -0.4794298</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; ffreq3    -0.6186406 0.12195193 -0.8576664 -0.3796148</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; ----Standard deviations (influential elements only)----</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;           elements standard_deviation</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 1               xb         0.68443397</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 2   spatial_scale1         0.09247398</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; 3   spatial_scale2         0.05116822</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; 4   spatial_scale3         0.02805099</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; 5   spatial_scale4         0.01818166</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; 6   spatial_scale5         0.01708566</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 7   spatial_scale6         0.01654673</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 8   spatial_scale7         0.01688475</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 9   spatial_scale8         0.02094416</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 10  spatial_scale9         0.02299996</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; 11 spatial_scale10         0.02569416</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 12 spatial_scale11         0.02765592</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 13 spatial_scale12         0.02790987</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 14 spatial_scale13         0.02789937</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 15 spatial_scale14         0.02680498</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 16 spatial_scale16         0.03016021</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 17 spatial_scale18         0.03664008</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 18 spatial_scale20         0.04566013</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; 19 spatial_scale22         0.05287690</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; 20       residuals         0.17180876</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; ----Error statistics ----------------------------------</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt;              stat     value</span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; 1   validation_R2 0.8154853</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; 2 validation_RMSE 0.2901086</span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; 3  validation_MAE 0.2300231</span></span></code></pre></div>
 </div>
 <div id="mapping" class="section level2">
 <h2>Mapping</h2>

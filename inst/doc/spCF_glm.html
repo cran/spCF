@@ -509,13 +509,43 @@ scalewise components, and error statistics are displayed as follows:</p>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; cf_glm(y = y, x = x, coords = coords, offset = offset, mod_hv = mod_hv)</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; ---- Coefficients -------------------------------------</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; c(&quot;-0.52944879&quot;, &quot; 0.01228421&quot;, &quot; 0.06969130&quot;, &quot;-0.15399214&quot;)c(&quot;0.191501840&quot;, &quot;0.012981721&quot;, &quot;0.005711098&quot;, &quot;0.034412197&quot;)c(&quot;-0.90479239&quot;, &quot;-0.01315997&quot;, &quot; 0.05849754&quot;, &quot;-0.22144004&quot;)c(&quot;-0.15410518&quot;, &quot; 0.03772838&quot;, &quot; 0.08088505&quot;, &quot;-0.08654423&quot;)</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; ---- Deviance losses (influential elements only) ------</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; c(&quot;xb&quot;, &quot;spatial_scale1&quot;, &quot;spatial_scale2&quot;, &quot;spatial_scale3&quot;, &quot;spatial_scale4&quot;, &quot;spatial_scale5&quot;, &quot;spatial_scale6&quot;, &quot;spatial_scale7&quot;, &quot;spatial_scale8&quot;, &quot;spatial_scale9&quot;, &quot;spatial_scale10&quot;, &quot;spatial_scale11&quot;, &quot;spatial_scale12&quot;, &quot;spatial_scale13&quot;, &quot;spatial_scale14&quot;, &quot;spatial_scale15&quot;, &quot;spatial_scale16&quot;, &quot;spatial_scale21&quot;, &quot;spatial_scale23&quot;, &quot;spatial_scale24&quot;, &quot;spatial_scale26&quot;, &quot;spatial_scale31&quot;, &quot;spatial_scale33&quot;)c(&quot;0.271116285&quot;, &quot;0.004461572&quot;, &quot;0.001366108&quot;, &quot;0.001402668&quot;, &quot;0.001492172&quot;, &quot;0.001975312&quot;, &quot;0.002852430&quot;, &quot;0.003068554&quot;, &quot;0.003418404&quot;, &quot;0.004055008&quot;, &quot;0.004486946&quot;, &quot;0.005784973&quot;, &quot;0.006560437&quot;, &quot;0.006829363&quot;, &quot;0.006909698&quot;, &quot;0.007577075&quot;, &quot;0.008556750&quot;, &quot;0.029136342&quot;, &quot;0.027819594&quot;, &quot;0.026608055&quot;, &quot;0.026104704&quot;, &quot;0.055181303&quot;, &quot;0.028855846&quot;)</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; ---- Error statistics ---------------------------------</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; c(&quot;validation_Pseudo-R2&quot;, &quot;validation_RMSE&quot;, &quot;validation_MAE&quot;)c(&quot; 0.7733305&quot;, &quot;15.1119402&quot;, &quot;11.4634187&quot;)</span></span></code></pre></div>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;                  coef     coef_se  lower_95CI  upper_95CI</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; Intercept -0.52944879 0.191501840 -0.90479239 -0.15410518</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; pm10       0.01228421 0.012981721 -0.01315997  0.03772838</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; jsa        0.06969130 0.005711098  0.05849754  0.08088505</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; price     -0.15399214 0.034412197 -0.22144004 -0.08654423</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; ---- Deviance losses (influential elements only) ------</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;           elements standard_deviation</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; 1               xb        0.271116285</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; 2   spatial_scale1        0.004461572</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 3   spatial_scale2        0.001366108</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; 4   spatial_scale3        0.001402668</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 5   spatial_scale4        0.001492172</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 6   spatial_scale5        0.001975312</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; 7   spatial_scale6        0.002852430</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 8   spatial_scale7        0.003068554</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; 9   spatial_scale8        0.003418404</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; 10  spatial_scale9        0.004055008</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; 11 spatial_scale10        0.004486946</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; 12 spatial_scale11        0.005784973</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; 13 spatial_scale12        0.006560437</span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; 14 spatial_scale13        0.006829363</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; 15 spatial_scale14        0.006909698</span></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co">#&gt; 16 spatial_scale15        0.007577075</span></span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#&gt; 17 spatial_scale16        0.008556750</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a><span class="co">#&gt; 18 spatial_scale21        0.029136342</span></span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co">#&gt; 19 spatial_scale23        0.027819594</span></span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">#&gt; 20 spatial_scale24        0.026608055</span></span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a><span class="co">#&gt; 21 spatial_scale26        0.026104704</span></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co">#&gt; 22 spatial_scale31        0.055181303</span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">#&gt; 23 spatial_scale33        0.028855846</span></span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="co">#&gt; ---- Error statistics ---------------------------------</span></span>
+<span id="cb8-39"><a href="#cb8-39" tabindex="-1"></a><span class="co">#&gt;                   stat      value</span></span>
+<span id="cb8-40"><a href="#cb8-40" tabindex="-1"></a><span class="co">#&gt; 1 validation_Pseudo-R2  0.7733305</span></span>
+<span id="cb8-41"><a href="#cb8-41" tabindex="-1"></a><span class="co">#&gt; 2      validation_RMSE 15.1119402</span></span>
+<span id="cb8-42"><a href="#cb8-42" tabindex="-1"></a><span class="co">#&gt; 3       validation_MAE 11.4634187</span></span></code></pre></div>
 </div>
 <div id="disease-mapping" class="section level2">
 <h2>Disease mapping</h2>
@@ -635,16 +665,33 @@ enable spatial prediction:</p>
 scalewise components, and error statistics are displayed as follows:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>mod</span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; cf_glm(y = flood, x = x, coords = coords, x0 = x0, coords0 = coords0,     mod_hv = mod_hv)</span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; ---- Coefficients -------------------------------------</span></span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; c(&quot; 1.157697&quot;, &quot;-3.694865&quot;)c(&quot;0.4328405&quot;, &quot;1.4469782&quot;)c(&quot; 0.3093296&quot;, &quot;-6.5309421&quot;)c(&quot; 2.0060643&quot;, &quot;-0.8587874&quot;)</span></span>
-<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt; ---- Deviance losses (influential elements only) ------</span></span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; c(&quot;xb&quot;, &quot;spatial_scale1&quot;, &quot;spatial_scale2&quot;, &quot;spatial_scale3&quot;, &quot;spatial_scale4&quot;, &quot;spatial_scale5&quot;, &quot;spatial_scale6&quot;, &quot;spatial_scale7&quot;, &quot;spatial_scale8&quot;, &quot;spatial_scale9&quot;, &quot;spatial_scale10&quot;)c(&quot;0.73048268&quot;, &quot;0.71870473&quot;, &quot;0.35770913&quot;, &quot;0.19613685&quot;, &quot;0.10685822&quot;, &quot;0.07766296&quot;, &quot;0.07091737&quot;, &quot;0.07353630&quot;, &quot;0.09175729&quot;, &quot;0.10432759&quot;, &quot;0.12669346&quot;)</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; cf_glm(y = flood, x = x, coords = coords, x0 = x0, coords0 = coords0, </span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt;     mod_hv = mod_hv)</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; ---- Coefficients -------------------------------------</span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt;                coef   coef_se lower_95CI upper_95CI</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt; Intercept  1.157697 0.4328405  0.3093296  2.0060643</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; x1        -3.694865 1.4469782 -6.5309421 -0.8587874</span></span>
 <span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; ---- Error statistics ---------------------------------</span></span>
-<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; c(&quot;validation_Pseudo-R2&quot;, &quot;validation_RMSE&quot;, &quot;validation_MAE&quot;)c(&quot;0.4531565&quot;, &quot;0.3395546&quot;, &quot;0.2730460&quot;)</span></span></code></pre></div>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt; ---- Deviance losses (influential elements only) ------</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt;           elements standard_deviation</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt; 1               xb         0.73048268</span></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="co">#&gt; 2   spatial_scale1         0.71870473</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="co">#&gt; 3   spatial_scale2         0.35770913</span></span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="co">#&gt; 4   spatial_scale3         0.19613685</span></span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a><span class="co">#&gt; 5   spatial_scale4         0.10685822</span></span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a><span class="co">#&gt; 6   spatial_scale5         0.07766296</span></span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a><span class="co">#&gt; 7   spatial_scale6         0.07091737</span></span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a><span class="co">#&gt; 8   spatial_scale7         0.07353630</span></span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a><span class="co">#&gt; 9   spatial_scale8         0.09175729</span></span>
+<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a><span class="co">#&gt; 10  spatial_scale9         0.10432759</span></span>
+<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a><span class="co">#&gt; 11 spatial_scale10         0.12669346</span></span>
+<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb18-25"><a href="#cb18-25" tabindex="-1"></a><span class="co">#&gt; ---- Error statistics ---------------------------------</span></span>
+<span id="cb18-26"><a href="#cb18-26" tabindex="-1"></a><span class="co">#&gt;                   stat     value</span></span>
+<span id="cb18-27"><a href="#cb18-27" tabindex="-1"></a><span class="co">#&gt; 1 validation_Pseudo-R2 0.4531565</span></span>
+<span id="cb18-28"><a href="#cb18-28" tabindex="-1"></a><span class="co">#&gt; 2      validation_RMSE 0.3395546</span></span>
+<span id="cb18-29"><a href="#cb18-29" tabindex="-1"></a><span class="co">#&gt; 3       validation_MAE 0.2730460</span></span></code></pre></div>
 </div>
 <div id="mapping" class="section level2">
 <h2>Mapping</h2>
