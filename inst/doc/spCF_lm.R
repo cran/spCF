@@ -53,6 +53,15 @@ plot(meuse.grid_sf[,"pred"], border = NA, nbreaks = 20, key.pos=4,axes=TRUE)
 plot(meuse.grid_sf[,"pred_sd"], pal = function(n) hcl.colors(n, "Viridis"), border = NA, 
      nbreaks = 9, key.pos = 4,axes = TRUE)
 
+## ----eval = FALSE-------------------------------------------------------------
+# mod_f <- cf_lm(y = y, x = x, coords = coords, mod_hv = mod_hv)   # no x0, coords0
+# p     <- predict(mod_f, x0 = x0, coords0 = coords0, probs = c(0.025, 0.975))
+
+## -----------------------------------------------------------------------------
+p <- predict(mod, x0 = x0, coords0 = coords0, probs = c(0.025, 0.975))
+head(p)
+all.equal(p$pred, mod$pred0$pred)
+
 ## -----------------------------------------------------------------------------
 mod_s1<- sp_scalewise(mod,bw_range=c(1000,Inf)) # Large scale (1000 <= bandwidth)
 mod_s2<- sp_scalewise(mod,bw_range=c(500,1000)) # Moderate scale (500 <= bandwidth < 1000)

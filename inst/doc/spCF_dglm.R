@@ -84,6 +84,29 @@ plot(grid_sf[, c("Jan2005", "Jan2006")], pch = 15, cex = 1.9,
 ## -----------------------------------------------------------------------------
 tapply(mod$pred0$pred_sd, time0, mean)
 
+## ----eval = FALSE-------------------------------------------------------------
+# mod_f <- cf_dglm(y = y, x = x, coords = coords, time = time,
+#                  mod_hv = mod_hv)                    # no x0, coords0, time0
+# p63   <- predict(mod_f, coords0 = gxy, time0 = rep(63, ng),
+#                  x0 = data.frame(sin12 = rep(sin(2 * pi * 3 / 12), ng),
+#                                  cos12 = rep(cos(2 * pi * 3 / 12), ng)),
+#                  probs = c(0.05, 0.95))
+
+## -----------------------------------------------------------------------------
+p63 <- predict(mod, coords0 = gxy, time0 = rep(63, ng),
+               x0 = data.frame(sin12 = rep(sin(2 * pi * 3 / 12), ng),
+                               cos12 = rep(cos(2 * pi * 3 / 12), ng)),
+               probs = c(0.05, 0.95))
+head(p63)
+
+## -----------------------------------------------------------------------------
+head(mod$pred0_q[time0 == 61, c("q0.05", "q0.95")])
+
+## ----eval = FALSE-------------------------------------------------------------
+# mod_small <- cf_dglm(y = y, x = x, coords = coords, time = time,
+#                      x0 = x0, coords0 = coords0, time0 = time0,
+#                      mod_hv = mod_hv, keep_scales = FALSE)
+
 ## -----------------------------------------------------------------------------
 mod_l <- sp_scalewise(mod, bw_range = c(150000, Inf))   # large scale (>= 150 km)
 mod_s <- sp_scalewise(mod, bw_range = c(0, 150000))     # small scale (< 150 km)
