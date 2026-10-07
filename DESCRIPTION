@@ -1,7 +1,7 @@
 Package: spCF
 Type: Package
 Title: Coarse-to-Fine Spatial and Spatio-Temporal Modeling
-Version: 0.2.2
+Version: 0.2.2.1
 Authors@R: c(
     person("Daisuke",  "Murakami",   email = "dmuraka@ism.ac.jp",
            role = c("aut", "cre")) ,
@@ -30,7 +30,7 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.1.0
 NeedsCompilation: yes
-Packaged: 2026-10-05 16:04:26 UTC; dmuraka
+Packaged: 2026-10-06 11:51:43 UTC; dmuraka
 Author: Daisuke Murakami [aut, cre],
   Alexis Comber [aut],
   Takahiro Yoshida [aut],
@@ -45,4 +45,4 @@ Author: Daisuke Murakami [aut, cre],
     library)
 Maintainer: Daisuke Murakami <dmuraka@ism.ac.jp>
 Repository: CRAN
-Date/Publication: 2026-10-05 16:40:11 UTC
+Date/Publication: 2026-10-07 12:50:02 UTC

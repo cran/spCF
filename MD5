@@ -1,6 +1,6 @@
-a154cd456da8aecea6152a13457e5b48 *DESCRIPTION
+3a56b919e905a9404c0d0de7803ebd84 *DESCRIPTION
 3bf29324b7852832e904a459a7c50099 *NAMESPACE
-7e4af33e37d54cf6049996f3a3d10901 *NEWS.md
+09088a0b14a6df41400ea91270e7014f *NEWS.md
 66538c9811d2397969549c726f247d22 *R/RcppExports.R
 3c416ef073882bb377ddd52149fe1f94 *R/cf_dglm.R
 d80c828b566a48a789bdbd0ed35f8e11 *R/cf_dglm_hv.R
@@ -77,7 +77,7 @@ de550b80272fd31da36f81247df853d2 *tests/testthat/test-cf_dglm.R
 2dd959a50027649b3d63f965f21db4f5 *tests/testthat/test-cf_glm.R
 e1943cb9969fd8453e2a84fd3a3280a6 *tests/testthat/test-cf_lm.R
 9d6c9e4ec1966a19a6931386e3b64601 *tests/testthat/test-mapping.R
-17c178485c4f06629e13484389c7b009 *tests/testthat/test-predict.R
+665739d57fe1579219df04777db3b748 *tests/testthat/test-predict.R
 525cc37568c0eda7641ff1d542ea7085 *tests/testthat/test-print.R
 c3fa483ee17189af03de8c54725365ec *tests/testthat/test-quantile.R
 ed2c470a11c42630e7a85594b73b0439 *tests/testthat/test-spCFmap.R

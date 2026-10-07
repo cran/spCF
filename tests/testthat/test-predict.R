@@ -1,29 +1,36 @@
 ## predict() at new sites uses only the knot states stored in the fit, and must
 ## agree exactly with fitting the model with the same sites as coords0.
 
-test_that("predict.cf_lm agrees exactly with cf_lm(coords0 = ...) and is batch-invariant", {
+## Predictions computed in different batches (or on a refit, or after saveRDS)
+## go through matrix products of different sizes, which alternative BLAS
+## libraries (BLIS, OpenBLAS) evaluate in a different order; the results then
+## agree only up to rounding (~1e-16), so compare with a small tolerance.
+expect_same <- function(object, expected, ...)
+  expect_equal(object, expected, tolerance = 1e-10, ...)
+
+test_that("predict.cf_lm agrees with cf_lm(coords0 = ...) and is batch-invariant", {
   d  <- sim_spatial(n = 150); set.seed(8)
   g  <- data.frame(px = runif(40), py = runif(40)); x0 <- data.frame(v1 = rnorm(40), v2 = runif(40))
   hv <- quiet(cf_lm_hv(y = d$y, x = d$x, coords = d$coords))
   mw <- quiet(cf_lm(y = d$y, x = d$x, coords = d$coords, x0 = x0, coords0 = g, mod_hv = hv))
   mo <- quiet(cf_lm(y = d$y, x = d$x, coords = d$coords, mod_hv = hv))
   p  <- predict(mo, x0 = x0, coords0 = g)
-  expect_identical(as.matrix(p), as.matrix(cbind(mw$pred0, mw$pred0_q)))
+  expect_same(as.matrix(p), as.matrix(cbind(mw$pred0, mw$pred0_q)))
   pa <- rbind(predict(mo, x0 = x0[1:15, ], coords0 = g[1:15, ]),
               predict(mo, x0 = x0[16:40, ], coords0 = g[16:40, ]))
-  expect_identical(as.matrix(pa), as.matrix(p))
+  expect_same(as.matrix(pa), as.matrix(p))
   ## levels, the mean, and the sample sites
   expect_named(predict(mo, x0 = x0, coords0 = g, probs = c(0.1, 0.9)), c("pred", "pred_sd", "q0.1", "q0.9"))
   pm <- predict(mo, x0 = x0, coords0 = g, se_type = "mean")
-  expect_identical(pm$pred, p$pred)
-  expect_identical(pm$pred_sd, mw$pred0_signal$pred_sd)
-  expect_identical(predict(mo)$pred, mo$pred$pred)
+  expect_same(pm$pred, p$pred)
+  expect_same(pm$pred_sd, mw$pred0_signal$pred_sd)
+  expect_same(predict(mo)$pred, mo$pred$pred)
   ## a saved and reloaded fit predicts the same
   f <- tempfile(fileext = ".rds"); saveRDS(mo, f)
-  expect_identical(predict(readRDS(f), x0 = x0, coords0 = g), p)
+  expect_same(predict(readRDS(f), x0 = x0, coords0 = g), p)
 })
 
-test_that("predict.cf_glm agrees exactly with cf_glm(coords0 = ...), with an offset", {
+test_that("predict.cf_glm agrees with cf_glm(coords0 = ...), with an offset", {
   d   <- sim_spatial(n = 150); set.seed(9)
   off <- log(runif(150, 1, 3)); y <- rpois(150, exp(off + 0.3 * d$x$v1 + 0.6 * d$field))
   g   <- data.frame(px = runif(30), py = runif(30)); x0 <- data.frame(v1 = rnorm(30), v2 = runif(30))
@@ -32,7 +39,7 @@ test_that("predict.cf_glm agrees exactly with cf_glm(coords0 = ...), with an off
   mw  <- quiet(cf_glm(y = y, x = d$x, coords = d$coords, offset = off, x0 = x0, coords0 = g,
                       offset0 = off0, mod_hv = hv))
   mo  <- quiet(cf_glm(y = y, x = d$x, coords = d$coords, offset = off, mod_hv = hv))
-  expect_identical(as.matrix(predict(mo, x0 = x0, coords0 = g, offset0 = off0)),
+  expect_same(as.matrix(predict(mo, x0 = x0, coords0 = g, offset0 = off0)),
                    as.matrix(cbind(mw$pred0, mw$pred0_q)))
 })
 
@@ -56,12 +63,12 @@ test_that("predict.cf_dglm agrees with cf_dglm(time0 = ...) at training, interio
   set.seed(2); c0 <- data.frame(px = runif(12), py = runif(12)); x0 <- data.frame(v1 = rnorm(12))
   t0 <- rep(c(0, 2, 3, 3.5, 6, 8), 2)
   mw <- quiet(cf_dglm(y = y, x = X, coords = C, time = tt, mod_hv = hv, x0 = x0, coords0 = c0, time0 = t0))
-  expect_identical(mo$pred, mw$pred)                                  # the fit does not depend on time0
+  expect_same(mo$pred, mw$pred)                                  # the fit does not depend on time0
   p  <- predict(mo, x0 = x0, coords0 = c0, time0 = t0)
-  expect_identical(as.matrix(p), as.matrix(cbind(mw$pred0, mw$pred0_q)))
+  expect_same(as.matrix(p), as.matrix(cbind(mw$pred0, mw$pred0_q)))
   pa <- rbind(predict(mo, x0 = x0[1:5, , drop = FALSE], coords0 = c0[1:5, ], time0 = t0[1:5]),
               predict(mo, x0 = x0[6:12, , drop = FALSE], coords0 = c0[6:12, ], time0 = t0[6:12]))
-  expect_identical(as.matrix(pa), as.matrix(p))
+  expect_same(as.matrix(pa), as.matrix(p))
   ## the bridge is continuous at the training times, and uncertainty grows
   ## between them and into the future (link scale = response scale here)
   site <- s$coords_uni[rep(5, 4), ]; v0 <- data.frame(v1 = rep(0, 4))

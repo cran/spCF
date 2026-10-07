@@ -1,3 +1,11 @@
+# spCF 0.2.2.1
+
+* Tests only: the `predict()` tests compared predictions made in different
+  batches for exact identity. With an alternative BLAS (BLIS, OpenBLAS) the
+  matrix products of different sizes are evaluated in a different order, so
+  the results agree only up to rounding (about 1e-16); they are now compared
+  with a tolerance of 1e-10. No change to the package code.
+
 # spCF 0.2.2
 
 ## New features
